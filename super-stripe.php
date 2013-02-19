@@ -24,10 +24,54 @@ class Supstr {
     add_action( 'admin_menu', array( $this, 'admin_menu' ) );
     add_action( 'init', array( $this, 'route' ) );
     add_shortcode( 'super-stripe-form', array( $this, 'stripe_form_shortcode' ) );
+
+    register_post_type( 'supstr-transaction',
+                        array('labels' => array('name' => __('Transactions', 'memberpress'),
+                                                'singular_name' => __('Transaction', 'memberpress'),
+                                                'add_new_item' => __('Add New Transaction', 'memberpress'),
+                                                'edit_item' => __('Edit Transaction', 'memberpress'),
+                                                'new_item' => __('New Transaction', 'memberpress'),
+                                                'view_item' => __('View Transaction', 'memberpress'),
+                                                'search_items' => __('Search Transactions', 'memberpress'),
+                                                'not_found' => __('No Transactions found', 'memberpress'),
+                                                'not_found_in_trash' => __('No Transactions found in Trash', 'memberpress'),
+                                                'parent_item_colon' => __('Parent Transaction:', 'memberpress')
+                                                ),
+                              'public' => false,
+                              'show_ui' => false,
+                              'capability_type' => 'post',
+                              'hierarchical' => false,
+                              'rewrite' => false,
+                              'supports' => array()
+                             )
+                      );
+
+    register_post_type( 'supstr-form',
+                        array('labels' => array('name' => __('Forms', 'memberpress'),
+                                                'singular_name' => __('Form', 'memberpress'),
+                                                'add_new_item' => __('Add New Form', 'memberpress'),
+                                                'edit_item' => __('Edit Form', 'memberpress'),
+                                                'new_item' => __('New Form', 'memberpress'),
+                                                'view_item' => __('View Form', 'memberpress'),
+                                                'search_items' => __('Search Forms', 'memberpress'),
+                                                'not_found' => __('No Forms found', 'memberpress'),
+                                                'not_found_in_trash' => __('No Forms found in Trash', 'memberpress'),
+                                                'parent_item_colon' => __('Parent Form:', 'memberpress')
+                                                ),
+                              'public' => false,
+                              'show_ui' => true,
+                              'show_in_menu' => 'super-stripe',
+                              'capability_type' => 'page',
+                              'hierarchical' => false,
+                              'rewrite' => false,
+                              'supports' => array('title','editor')
+                             )
+                      );
   } 
 
   public function admin_menu() {
-    add_options_page(__('Super Stripe', 'super-stripe'), __('Super Stripe', 'super-stripe'), 'administrator', 'super-stripe', array($this,'settings_page'));
+    add_menu_page(__('Super Stripe', 'super-stripe'), __('Super Stripe', 'super-stripe'), 'administrator', 'super-stripe', array($this,'settings_page'));
+    add_submenu_page('super-stripe', __('Options', 'super-stripe'), __('Options', 'super-stripe'), 'administrator', 'super-stripe', array($this,'settings_page'));
   }
 
   public function settings_page() {
@@ -44,9 +88,8 @@ class Supstr {
           $message = __('Super Stripe Options Updated Successfully');
         }
       }
-      else {
+      else
         $errors[] = __('You creepin bro');
-      }
     }
 
     $this->display_form($message,$errors);
@@ -113,10 +156,15 @@ class Supstr {
   }
 
   public function route() {
-    if( isset($_REQUEST['plugin']) and $_REQUEST['plugin']=='supstr' ) {
-      if( isset($_REQUEST['action']) and $_REQUEST['action']=='process' ) {
+    if( isset($_REQUEST['plugin']) and
+        $_REQUEST['plugin']=='supstr' and
+        isset($_REQUEST['action']) ) {
+
+      if( $_REQUEST['action']=='process' )
         $this->process_checkout();
-      }
+      else if( $_REQUEST['action']=='record' )
+        $this->record_checkout();
+
       exit;
     }
   }
@@ -153,6 +201,12 @@ class Supstr {
     $url = "http://express.memberpress.com/checkout/{$token}";
 
     wp_redirect( $url );
+  }
+
+  public function record_checkout() {
+    // create supstr_transaction
+    // add all the postmeta associated with it
+    // 
   }
 }
 
