@@ -1,0 +1,12 @@
+/* WP List Table CSS */
+#cspf-table-search {
+  margin-left: 0;
+  margin-bottom: 3px;
+  float: right;
+}
+
+div#table-actions {
+  display:block;
+  width:auto;
+  float:left;
+}
