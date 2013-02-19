@@ -26,16 +26,16 @@ class Supstr {
     add_shortcode( 'super-stripe-form', array( $this, 'stripe_form_shortcode' ) );
 
     register_post_type( 'supstr-transaction',
-                        array('labels' => array('name' => __('Transactions', 'memberpress'),
-                                                'singular_name' => __('Transaction', 'memberpress'),
-                                                'add_new_item' => __('Add New Transaction', 'memberpress'),
-                                                'edit_item' => __('Edit Transaction', 'memberpress'),
-                                                'new_item' => __('New Transaction', 'memberpress'),
-                                                'view_item' => __('View Transaction', 'memberpress'),
-                                                'search_items' => __('Search Transactions', 'memberpress'),
-                                                'not_found' => __('No Transactions found', 'memberpress'),
-                                                'not_found_in_trash' => __('No Transactions found in Trash', 'memberpress'),
-                                                'parent_item_colon' => __('Parent Transaction:', 'memberpress')
+                        array('labels' => array('name' => __('Transactions', 'super-stripe'),
+                                                'singular_name' => __('Transaction', 'super-stripe'),
+                                                'add_new_item' => __('Add New Transaction', 'super-stripe'),
+                                                'edit_item' => __('Edit Transaction', 'super-stripe'),
+                                                'new_item' => __('New Transaction', 'super-stripe'),
+                                                'view_item' => __('View Transaction', 'super-stripe'),
+                                                'search_items' => __('Search Transactions', 'super-stripe'),
+                                                'not_found' => __('No Transactions found', 'super-stripe'),
+                                                'not_found_in_trash' => __('No Transactions found in Trash', 'super-stripe'),
+                                                'parent_item_colon' => __('Parent Transaction:', 'super-stripe')
                                                 ),
                               'public' => false,
                               'show_ui' => false,
@@ -46,34 +46,47 @@ class Supstr {
                              )
                       );
 
-    register_post_type( 'supstr-form',
-                        array('labels' => array('name' => __('Forms', 'memberpress'),
-                                                'singular_name' => __('Form', 'memberpress'),
-                                                'add_new_item' => __('Add New Form', 'memberpress'),
-                                                'edit_item' => __('Edit Form', 'memberpress'),
-                                                'new_item' => __('New Form', 'memberpress'),
-                                                'view_item' => __('View Form', 'memberpress'),
-                                                'search_items' => __('Search Forms', 'memberpress'),
-                                                'not_found' => __('No Forms found', 'memberpress'),
-                                                'not_found_in_trash' => __('No Forms found in Trash', 'memberpress'),
-                                                'parent_item_colon' => __('Parent Form:', 'memberpress')
-                                                ),
-                              'public' => false,
-                              'show_ui' => true,
-                              'show_in_menu' => 'super-stripe',
-                              'capability_type' => 'page',
-                              'hierarchical' => false,
-                              'rewrite' => false,
-                              'supports' => array('title','editor')
-                             )
-                      );
-  } 
-
+    // register_post_type( 'supstr-form',
+                        // array('labels' => array('name' => __('Forms', 'super-stripe'),
+                                                // 'singular_name' => __('Form', 'super-stripe'),
+                                                // 'add_new_item' => __('Add New Form', 'super-stripe'),
+                                                // 'edit_item' => __('Edit Form', 'super-stripe'),
+                                                // 'new_item' => __('New Form', 'super-stripe'),
+                                                // 'view_item' => __('View Form', 'super-stripe'),
+                                                // 'search_items' => __('Search Forms', 'super-stripe'),
+                                                // 'not_found' => __('No Forms found', 'super-stripe'),
+                                                // 'not_found_in_trash' => __('No Forms found in Trash', 'super-stripe'),
+                                                // 'parent_item_colon' => __('Parent Form:', 'super-stripe')
+                                                // ),
+                              // 'public' => false,
+                              // 'show_ui' => true,
+                              // 'show_in_menu' => 'super-stripe',
+                              // 'capability_type' => 'page',
+                              // 'hierarchical' => false,
+                              // 'register_meta_box_cb' => 'Supstr::add_meta_boxes',
+                              // 'rewrite' => false,
+                              // 'supports' => array('title')
+                             // )
+                      // );
+  }
+  
+  // public static function add_meta_boxes() {
+    // add_meta_box("supstr-form-meta", __("Form Options", 'super-stripe'), "Supstr::form_meta_box", 'supstr-form', "normal", "high");
+  // }
+  
+  // public static function form_meta_box() {
+    // global $post_id;
+    
+    // $post_meta = get_post_meta($post_id);
+    
+    // require(SUPSTR_PATH.'/views/form_meta_box.php');
+  // }
+  
   public function admin_menu() {
     add_menu_page(__('Super Stripe', 'super-stripe'), __('Super Stripe', 'super-stripe'), 'administrator', 'super-stripe', array($this,'settings_page'));
     add_submenu_page('super-stripe', __('Options', 'super-stripe'), __('Options', 'super-stripe'), 'administrator', 'super-stripe', array($this,'settings_page'));
   }
-
+  
   public function settings_page() {
     $errors = array();
     $message = '';
@@ -95,29 +108,14 @@ class Supstr {
     $this->display_form($message,$errors);
   }
 
-  public function display_form($message='',$errors=array()) {
-    ?>
-    <div class="wrap">
-      <h2><?php _e('Super Stripe'); ?></h2>
-      <?php require( SUPSTR_PATH . '/errors.php' ); ?>
-      <form method="post" action="">
-        <?php wp_nonce_field('super-stripe','_supstr_nonce'); ?>
-        <table class="form-table">
-          <tr valign="top">
-            <th scope="row"><?php _e('License Key'); ?></th>
-            <td><input type="text" name="supstr_license_key" value="<?php echo esc_attr(get_option('supstr_license_key')); ?>" /></td>
-          </tr>
-        </table>
-        <?php submit_button(); ?>
-      </form>
-    </div>
-    <?php
+  public function display_form($message = '', $errors = array()) {
+    require(SUPSTR_PATH.'/views/display_form.php');
   }
-
-  public static function stripe_form_shortcode($atts, $content=null) {
+  
+  public static function stripe_form_shortcode($atts, $content = null) {
     $content = empty($content) ? __('Buy Now') : $content;
     $license_key = esc_attr(get_option('supstr_license_key'));
-
+    
     if( !$license_key or
         !isset($atts["terms"]) or
         !isset($atts["description"]) or
@@ -125,36 +123,23 @@ class Supstr {
         !isset($atts["return_url"]) or
         !isset($atts["cancel_url"]) )
     { return ''; }
-
+    
     $args = array_merge( array('currency' => 'USD'), $atts );
-
+    
     // No recurring stuff works in Super Stripe ... gotta go with MemberPress for that action
     $args['period'] = 1;
     $args['period_type'] = 'lifetime';
     $args['trial'] = false;
     $args['trial_days'] = 0;
     $args['trial_amount'] = 0.00;
-
+    
     ob_start();
-    ?>
-    <form action="<?php echo home_url("index.php"); ?>" method="post">
-      <input type="hidden" name="plugin" value="supstr" />
-      <input type="hidden" name="action" value="process" />
-      <input type="hidden" name="args" value="<?php echo base64_encode(json_encode($args)); ?>" />
-      <div class="super-stripe-form">
-        <label for="supstr_email"><?php _e('Email Address:'); ?>
-        <input type="text" name="supstr_email" value="<?php echo isset($_REQUEST['supstr_email']) ? $_REQUEST['supstr_email'] : ''; ?>" /></label><br/>
-        <input type="submit" name="checkout" value="<?php echo $content; ?>" />
-      </div>
-    </form>
-    <?php
-
-    $html = ob_get_contents();
-    ob_end_clean();
-
-    return $html;
+    
+    require(SUPSTR_PATH.'/views/stripe_form_shortcode.php');
+    
+    return ob_get_clean();
   }
-
+  
   public function route() {
     if( isset($_REQUEST['plugin']) and
         $_REQUEST['plugin']=='supstr' and
