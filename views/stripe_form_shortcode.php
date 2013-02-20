@@ -7,6 +7,7 @@
   <div class="super-stripe-form">
     <label for="supstr_email"><?php _e('Email Address:'); ?>
     <input type="text" name="supstr_email" value="<?php echo isset($_REQUEST['supstr_email']) ? $_REQUEST['supstr_email'] : ''; ?>" /></label><br/>
-    <input type="submit" name="checkout" value="<?php echo $content; ?>" />
+    <input type="submit" name="checkout" value="<?php echo $button; ?>" />
   </div>
 </form>
+

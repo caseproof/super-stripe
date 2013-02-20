@@ -94,9 +94,18 @@ class Supstr {
   }
   
   public static function stripe_form_shortcode($atts, $content = null) {
-    $content = empty($content) ? __('Buy Now') : $content;
+    if(empty($content)) {
+      $content = '<p>' . __('Dear {$first_name},') . '</p>' .
+                 '<p>' . __('Thank you for your purchase. Keep this email for your records:') . '</p>' .
+                 '<p>' . __('Transaction Amount: {$amount}') . '<br/>' .
+                         __('Invoice Number: {$txn_number}') . '<br/>' .
+                         __('Customer Number: {$customer_id}') . '</p>' .
+                 '<p>' . __('Cheers,') . '<br/>' .
+                         sprintf(__('The %s Team'), get_option('blogname')) . '</p>';
+    }
+
     $license_key = esc_attr(get_option('supstr_license_key'));
-    
+
     if( !$license_key or
         !isset($atts["terms"]) or
         !isset($atts["description"]) or
@@ -104,23 +113,28 @@ class Supstr {
         !isset($atts["return_url"]) or
         !isset($atts["cancel_url"]) )
     { return ''; }
-    
-    $args = array_merge( array('currency' => 'USD'), $atts );
-    
+
+    $args = array_merge( array('button' => __('Buy Now'), 'currency' => 'USD'), $atts );
+
+    $button = $args['button'];
+    unset($args['button']);
+
     // No recurring stuff works in Super Stripe ... gotta go with MemberPress for that action
     $args['period'] = 1;
     $args['period_type'] = 'lifetime';
     $args['trial'] = false;
     $args['trial_days'] = 0;
     $args['trial_amount'] = 0.00;
-    
+    $args['email'] = $content;
+
+    $args["return_url"] = home_url('index.php?plugin=supstr&action=record&url=' . urlencode( $args['return_url'] ));
+    $args["cancel_url"] = home_url('index.php?plugin=supstr&action=cancel&url=' . urlencode( $args['cancel_url'] ));
+
     ob_start();
-    
     require(SUPSTR_PATH.'/views/stripe_form_shortcode.php');
-    
     return ob_get_clean();
   }
-  
+
   public function route() {
     if( isset($_REQUEST['plugin']) and
         $_REQUEST['plugin']=='supstr' and
@@ -130,6 +144,8 @@ class Supstr {
         $this->process_checkout();
       else if( $_REQUEST['action']=='record' )
         $this->record_checkout();
+      else if( $_REQUEST['action']=='cancel' )
+        $this->cancel_checkout();
       
       exit;
     }
@@ -170,12 +186,96 @@ class Supstr {
   }
   
   public function record_checkout() {
-    // create supstr_transaction
-    // add all the postmeta associated with it
-    // See the _meta_key_names I used below in the list_table queries
-    // What's stored up here needs to match them
+    $license_key = esc_attr(get_option('supstr_license_key'));
+    $url = "http://express.memberpress.com/checkout/info/{$_REQUEST['token']}/{$license_key}";
+
+    $get_args = array( 'method' => 'GET',
+                       'blocking' => true,
+                       'headers' => array( 'content-type' => 'application/json' ),
+                       'body' => '' );
+
+    $resp = wp_remote_get( $url, $get_args );
+
+    echo "http://express.memberpress.com/checkout/info/{$_REQUEST['token']}/{$license_key}<br/>";
+    $json = json_decode( $resp['body'] );
+
+    $post = array( 'post_status' => 'publish',
+                   'post_type' => 'supstr-transaction' );
+
+    $post_id = wp_insert_post( $post );
+
+    update_post_meta( $post_id, '_supstr_txn_date', date('c') );
+    update_post_meta( $post_id, '_supstr_txn_num', $json->response->charge->id );
+    update_post_meta( $post_id, '_supstr_txn_price', $json->price );
+    update_post_meta( $post_id, '_supstr_txn_desc', $json->description );
+    update_post_meta( $post_id, '_supstr_txn_email', $json->email );
+    update_post_meta( $post_id, '_supstr_txn_buyer_name', $json->response->charge->card->name );
+    update_post_meta( $post_id, '_supstr_txn_customer', $json->response->charge->customer );
+    update_post_meta( $post_id, '_supstr_txn_response', $json );
+
+    if( isset( $json->sale_notice_emails ) ) {
+      $admin_addrs = explode(',', $json->sale_notice_emails);
+      $main_email = get_option('admin_email');
+
+      $headers = "From: \"{$main_email}\" <{$main_email}>\n\r" .
+                 "MIME-Version: 1.0\n\r" .
+                 "Content-Type: multipart/mixed; boundary=\"superstripe\"\n\r\n\r";
+
+      ob_start();
+      echo "--superstripe\n\r";
+      echo "Content-Type: text/plain; charset = \"utf-8\"\n\r\n\r";
+      printf(__('A transaction on %s just completed successfully:'), get_option('blogname'));
+      echo "\n";
+      echo __('Name:') . ' ' . $json->response->charge->card->name . "\n";
+      echo __('Invoice:') . ' ' . $json->response->charge->id . "\n";
+      echo __('Email:') . ' ' . $json->email . "\n";
+      echo __('Customer:') . ' ' . $json->response->charge->customer . "\n";
+      echo "\n\r\n\r";
+      echo "--superstripe\n\r";
+      echo "Content-Type: text/html; charset = \"UTF-8\"\n\r\n\r";
+      ?>
+      <p><?php printf(__('A transaction on %s just completed successfully:'), get_option('blogname')); ?></p>
+      <table>
+        <tr>
+          <td><b><?php _e('Name'); ?></b></td>
+          <td><?php echo $json->response->charge->card->name; ?></td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Invoice'); ?></b></td>
+          <td><?php echo $json->response->charge->id; ?></td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Email'); ?></b></td>
+          <td><?php echo $json->email; ?></td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Customer'); ?></b></td>
+          <td><?php echo $json->response->charge->customer; ?></td>
+        </tr>
+      </table>
+      <?php
+
+      echo "\n\r\n\r";
+      echo "--superstripe\n\r";
+
+      $admin_body = ob_get_contents();
+      ob_end_clean();
+
+      foreach( $admin_addrs as $addr )
+        wp_mail( $addr, sprintf(__("Completed Transaction on %s"), get_option('blogname')), $admin_body, $headers );
+    }
+
+    $delim = preg_match( '/\?/', $_REQUEST['url'] ) ? '&' : '?';
+
+    wp_redirect( $_REQUEST['url'] . $delim . 'token=' . $_REQUEST['token'] . '&invoice=' . $json->response->charge->id );
+    exit;
+  }
+
+  public function cancel_checkout() {
+    // Send cancel email
   }
 } //End class
+
 new Supstr();
 
 /********* TRANSACTIONS LIST TABLE CLASS *********/
