@@ -26,6 +26,7 @@ class Supstr {
     add_action('wp_enqueue_scripts', array($this, 'enqueue_front_scripts'));
     add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
     add_shortcode('super-stripe-form', array($this, 'stripe_form_shortcode'));
+    add_shortcode('super-stripe-thank-you', array($this, 'stripe_thank_you_shortcode'));
     
     register_post_type( 'supstr-transaction',
                         array('labels' => array('name' => __('Transactions', 'super-stripe'),
@@ -176,6 +177,31 @@ class Supstr {
     return ob_get_clean();
   }
 
+  public static function stripe_thank_you_shortcode($atts, $content = null) {
+    global $wpdb;
+
+    if( !isset($_REQUEST['invoice']) or !isset($_REQUEST['token']) )
+      return '';
+
+    $query = "SELECT p.ID FROM {$wpdb->posts} AS p " .
+               "JOIN {$wpdb->postmeta} AS txn_num_pm " .
+                 "ON txn_num_pm.post_id=p.ID " .
+                "AND txn_num_pm.meta_key='_supstr_txn_num' " .
+               "JOIN {$wpdb->postmeta} AS txn_token_pm " .
+                 "ON txn_token_pm.post_id=p.ID " .
+                "AND txn_token_pm.meta_key='_supstr_txn_token' " .
+              "WHERE post_type='supstr-transaction' " .
+                "AND txn_num_pm.meta_value=%s " .
+                "AND txn_token_pm.meta_value=%s";
+
+    $query = $wpdb->prepare( $query, $_REQUEST['invoice'], $_REQUEST['token'] );
+    $post_id = $wpdb->get_var( $query );
+
+    if( empty($post_id) ) { return ''; }
+
+    return get_post_meta( $post_id, '_supstr_txn_message', true );
+  }
+
   public function route() {
     if( isset($_REQUEST['plugin']) and
         $_REQUEST['plugin']=='supstr' and
@@ -249,6 +275,7 @@ class Supstr {
 
     update_post_meta( $post_id, '_supstr_txn_date', date('Y-m-d H:i:s') );
     update_post_meta( $post_id, '_supstr_txn_num', $json->response->charge->id );
+    update_post_meta( $post_id, '_supstr_txn_token', $_REQUEST['token'] );
     update_post_meta( $post_id, '_supstr_txn_price', $json->price );
     update_post_meta( $post_id, '_supstr_txn_desc', $json->description );
     update_post_meta( $post_id, '_supstr_txn_email', $json->email );
