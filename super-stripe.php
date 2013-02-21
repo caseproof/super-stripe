@@ -95,13 +95,44 @@ class Supstr {
   
   public static function stripe_form_shortcode($atts, $content = null) {
     if(empty($content)) {
-      $content = '<p>' . __('Dear {$first_name},') . '</p>' .
-                 '<p>' . __('Thank you for your purchase. Keep this email for your records:') . '</p>' .
-                 '<p>' . __('Transaction Amount: {$amount}') . '<br/>' .
-                         __('Invoice Number: {$txn_number}') . '<br/>' .
-                         __('Customer Number: {$customer_id}') . '</p>' .
-                 '<p>' . __('Cheers,') . '<br/>' .
-                         sprintf(__('The %s Team'), get_option('blogname')) . '</p>';
+      ob_start();
+      ?>
+      <p><?php _e('Dear {$first_name},'); ?></p>
+      <p><?php printf(__('Thank you for your purchase on %s. Keep this email for your records:'), get_option('blogname')); ?></p>
+      <br/>
+      <table>
+        <tr>
+          <td><b><?php _e('Name:'); ?></b></td>
+          <td>{$txn_buyer_name}</td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Price:'); ?></b></td>
+          <td>{$txn_price}</td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Description:'); ?></b></td>
+          <td>{$txn_desc}</td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Payee:'); ?></b></td>
+          <td>{$txn_company}</td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Invoice:'); ?></b></td>
+          <td>{$txn_num}</td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Email:'); ?></b></td>
+          <td>{$txn_email}</td>
+        </tr>
+      </table>
+      <br/>
+      <p><?php _e('Cheers,'); ?><br/><br/>
+         <?php printf(__('The %s Team'), get_option('blogname')); ?></p>
+      <?php
+
+      $content = ob_get_contents();
+      ob_end_clean();
     }
 
     $license_key = esc_attr(get_option('supstr_license_key'));
@@ -125,7 +156,7 @@ class Supstr {
     $args['trial'] = false;
     $args['trial_days'] = 0;
     $args['trial_amount'] = 0.00;
-    $args['email'] = $content;
+    $args['message'] = base64_encode($content);
 
     $args["return_url"] = home_url('index.php?plugin=supstr&action=record&url=' . urlencode( $args['return_url'] ));
     $args["cancel_url"] = home_url('index.php?plugin=supstr&action=cancel&url=' . urlencode( $args['cancel_url'] ));
@@ -165,6 +196,7 @@ class Supstr {
     $url = 'http://express.memberpress.com/checkout/setup';
     
     $post_args = array( 'method' => 'POST',
+                        'timeout' => 45,
                         'blocking' => true,
                         'headers' => array( 'content-type' => 'application/json' ),
                         'body' => json_encode($args) );
@@ -174,6 +206,8 @@ class Supstr {
     if( is_wp_error( $resp ) ) {
       echo "<pre>";
       _e("Something went wrong: ") . $resp->get_error_message();
+      print_r($resp);
+      print_r($post_args);
       echo "</pre>";
       return;
     }
@@ -190,6 +224,7 @@ class Supstr {
     $url = "http://express.memberpress.com/checkout/info/{$_REQUEST['token']}/{$license_key}";
 
     $get_args = array( 'method' => 'GET',
+                       'timeout' => 45,
                        'blocking' => true,
                        'headers' => array( 'content-type' => 'application/json' ),
                        'body' => '' );
@@ -199,70 +234,97 @@ class Supstr {
     echo "http://express.memberpress.com/checkout/info/{$_REQUEST['token']}/{$license_key}<br/>";
     $json = json_decode( $resp['body'] );
 
-    $post = array( 'post_status' => 'publish',
-                   'post_type' => 'supstr-transaction' );
+    $post = array( 'post_status' => 'publish', 'post_type' => 'supstr-transaction' );
 
     $post_id = wp_insert_post( $post );
 
-    update_post_meta( $post_id, '_supstr_txn_date', date('c') );
+    update_post_meta( $post_id, '_supstr_txn_date', date('Y-m-d H:i:s') );
     update_post_meta( $post_id, '_supstr_txn_num', $json->response->charge->id );
     update_post_meta( $post_id, '_supstr_txn_price', $json->price );
     update_post_meta( $post_id, '_supstr_txn_desc', $json->description );
     update_post_meta( $post_id, '_supstr_txn_email', $json->email );
+    update_post_meta( $post_id, '_supstr_txn_currency', $json->currency );
     update_post_meta( $post_id, '_supstr_txn_buyer_name', $json->response->charge->card->name );
     update_post_meta( $post_id, '_supstr_txn_customer', $json->response->charge->customer );
     update_post_meta( $post_id, '_supstr_txn_response', $json );
 
+    $main_email = get_option('admin_email');
+    $blogname = get_option('blogname');
+
+    $headers = "From: \"{$blogname}\" <{$main_email}>\r\n" .
+               "Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n";
+
+    if( isset( $json->message ) ) {
+      $json_message = base64_decode($json->message);
+      $name_a = explode(' ', $json->response->charge->card->name);
+      
+      $regexps = array( '/'.preg_quote('{$first_name}').'/',
+                        '/'.preg_quote('{$txn_num}').'/',
+                        '/'.preg_quote('{$txn_date}').'/',
+                        '/'.preg_quote('{$txn_price}').'/',
+                        '/'.preg_quote('{$txn_desc}').'/',
+                        '/'.preg_quote('{$txn_email}').'/',
+                        '/'.preg_quote('{$txn_buyer_name}').'/',
+                        '/'.preg_quote('{$txn_customer}').'/',
+                        '/'.preg_quote('{$txn_company}').'/' );
+      $replace = array( $name_a[0],
+                        $json->response->charge->id,
+                        date('Y-m-d H:i:s'),
+                        self::format_currency($json->price),
+                        $json->description,
+                        $json->email,
+                        $json->response->charge->card->name,
+                        $json->response->charge->customer,
+                        $json->company );
+
+      $customer_body = preg_replace( $regexps, $replace, $json_message );
+
+      wp_mail( $json->email, sprintf(__("** Receipt From %s"), get_option('blogname')), $customer_body, $headers );
+    }
+
     if( isset( $json->sale_notice_emails ) ) {
       $admin_addrs = explode(',', $json->sale_notice_emails);
-      $main_email = get_option('admin_email');
-
-      $headers = "From: \"{$main_email}\" <{$main_email}>\n\r" .
-                 "MIME-Version: 1.0\n\r" .
-                 "Content-Type: multipart/mixed; boundary=\"superstripe\"\n\r\n\r";
 
       ob_start();
-      echo "--superstripe\n\r";
-      echo "Content-Type: text/plain; charset = \"utf-8\"\n\r\n\r";
-      printf(__('A transaction on %s just completed successfully:'), get_option('blogname'));
-      echo "\n";
-      echo __('Name:') . ' ' . $json->response->charge->card->name . "\n";
-      echo __('Invoice:') . ' ' . $json->response->charge->id . "\n";
-      echo __('Email:') . ' ' . $json->email . "\n";
-      echo __('Customer:') . ' ' . $json->response->charge->customer . "\n";
-      echo "\n\r\n\r";
-      echo "--superstripe\n\r";
-      echo "Content-Type: text/html; charset = \"UTF-8\"\n\r\n\r";
       ?>
       <p><?php printf(__('A transaction on %s just completed successfully:'), get_option('blogname')); ?></p>
       <table>
         <tr>
-          <td><b><?php _e('Name'); ?></b></td>
+          <td><b><?php _e('Name:'); ?></b></td>
           <td><?php echo $json->response->charge->card->name; ?></td>
         </tr>
         <tr>
-          <td><b><?php _e('Invoice'); ?></b></td>
-          <td><?php echo $json->response->charge->id; ?></td>
+          <td><b><?php _e('Price:'); ?></b></td>
+          <td><?php echo Supstr::format_currency($json->price); ?></td>
         </tr>
         <tr>
-          <td><b><?php _e('Email'); ?></b></td>
+          <td><b><?php _e('Description:'); ?></b></td>
+          <td><?php echo $json->description; ?></td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Email:'); ?></b></td>
           <td><?php echo $json->email; ?></td>
         </tr>
         <tr>
-          <td><b><?php _e('Customer'); ?></b></td>
+          <td><b><?php _e('Invoice:'); ?></b></td>
+          <td><?php echo $json->response->charge->id; ?></td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Customer:'); ?></b></td>
           <td><?php echo $json->response->charge->customer; ?></td>
+        </tr>
+        <tr>
+          <td><b><?php _e('Payee:'); ?></b></td>
+          <td><?php echo $json->company; ?></td>
         </tr>
       </table>
       <?php
-
-      echo "\n\r\n\r";
-      echo "--superstripe\n\r";
 
       $admin_body = ob_get_contents();
       ob_end_clean();
 
       foreach( $admin_addrs as $addr )
-        wp_mail( $addr, sprintf(__("Completed Transaction on %s"), get_option('blogname')), $admin_body, $headers );
+        wp_mail( $addr, sprintf(__("** New Payment on %s"), get_option('blogname')), $admin_body, $headers );
     }
 
     $delim = preg_match( '/\?/', $_REQUEST['url'] ) ? '&' : '?';
@@ -273,6 +335,21 @@ class Supstr {
 
   public function cancel_checkout() {
     // Send cancel email
+  }
+
+  public static function format_currency( $number, $show_symbol = true ) {
+    global $wp_locale;
+
+    // Goin out on a limb here but since Stripe is currently
+    // only available in USA & Canada I think the bulk of 
+    // people will be looking at this as their currency symbol
+    $symbol = '$';
+
+    $rstr = (string)number_format((float)$number, 2, $wp_locale->number_format['decimal_point'], '');
+
+    if($show_symbol) { $rstr = $symbol . $rstr; }
+
+    return $rstr;
   }
 } //End class
 
@@ -380,9 +457,9 @@ class SupstrTransactionsTable extends WP_List_Table {
     $args = array("txn.post_type = 'supstr-transaction'");
     
     $joins = array( "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_date ON txn_date.post_id = txn.ID AND txn_date.meta_key = '_supstr_txn_date'",
-                    "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_num ON txn_num.post_id = txn.ID AND txn_num.meta_key = '_supstr_txn_number'",
+                    "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_num ON txn_num.post_id = txn.ID AND txn_num.meta_key = '_supstr_txn_num'",
                     "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_price ON txn_price.post_id = txn.ID AND txn_price.meta_key = '_supstr_txn_price'",
-                    "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_desc ON txn_desc.post_id = txn.ID AND txn_desc.meta_key = '_supstr_txn_description'",
+                    "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_desc ON txn_desc.post_id = txn.ID AND txn_desc.meta_key = '_supstr_txn_desc'",
                     "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_email ON txn_email.post_id = txn.ID AND txn_email.meta_key = '_supstr_txn_email'",
                     "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_buyer_name ON txn_buyer_name.post_id = txn.ID AND txn_buyer_name.meta_key = '_supstr_txn_buyer_name'"
                   );
