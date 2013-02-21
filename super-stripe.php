@@ -267,26 +267,24 @@ class Supstr {
       $json_message = base64_decode($json->message);
       $name_a = explode(' ', $json->response->charge->card->name);
       
-      $regexps = array( '{$first_name}',
-                        '{$txn_num}',
-                        '{$txn_date}',
-                        '{$txn_price}',
-                        '{$txn_desc}',
-                        '{$txn_email}',
-                        '{$txn_buyer_name}',
-                        '{$txn_customer}',
-                        '{$txn_company}' );
-      $replace = array( $name_a[0],
-                        $json->response->charge->id,
-                        date('Y-m-d H:i:s'),
-                        self::format_currency((float)$json->price),
-                        $json->description,
-                        $json->email,
-                        $json->response->charge->card->name,
-                        $json->response->charge->customer,
-                        $json->company );
+      $replacements = array( 'first_name' => $name_a[0],
+                             'txn_num' => $json->response->charge->id,
+                             'txn_date' => date('Y-m-d H:i:s'),
+                             'txn_price' => self::format_currency((float)$json->price),
+                             'txn_desc' => $json->description,
+                             'txn_email' => $json->email,
+                             'txn_buyer_name' => $json->response->charge->card->name,
+                             'txn_customer' => $json->response->charge->customer,
+                             'txn_company' => $json->company );
 
-      $customer_body = str_replace( $regexps, $replace, $json_message );
+      $mkvars = create_function('$item', 'return \'{$\'.$item.\'}\';');
+      $customer_body = str_replace( array_map( create_function( '$item', 'return \'{$\'.$item.\'}\';'),
+                                               array_keys( $replacements ) ),
+                                    array_values( $replacements ),
+                                    $json_message );
+
+      update_post_meta( $post_id, '_supstr_txn_replacements', $replacements );
+      update_post_meta( $post_id, '_supstr_txn_message', $customer_body );
 
       wp_mail( $json->email, sprintf(__("** Receipt From %s"), get_option('blogname')), $customer_body, $headers );
     }
