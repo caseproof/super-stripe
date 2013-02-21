@@ -23,6 +23,7 @@ class Supstr {
   public function __construct() {
     add_action('admin_menu', array($this, 'admin_menu'));
     add_action('init', array($this, 'route'));
+    add_action('wp_enqueue_scripts', array($this, 'enqueue_front_scripts'));
     add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
     add_shortcode('super-stripe-form', array($this, 'stripe_form_shortcode'));
     
@@ -46,6 +47,15 @@ class Supstr {
                               'supports' => array()
                              )
                       );
+  }
+  
+  public function enqueue_front_scripts() {
+    global $post;
+    
+    if(isset($post) && $post instanceof WP_Post && preg_match('#\[super-stripe-form#', $post->post_content)) {
+      wp_enqueue_script('supstr-validate-js', SUPSTR_URL.'/js/jquery.validate.js', array('jquery'));
+      wp_enqueue_script('supstr-shortcode-js', SUPSTR_URL.'/js/shortcode.js', array('jquery'));
+    }
   }
   
   public function enqueue_admin_scripts($hook) {
