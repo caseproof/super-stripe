@@ -241,7 +241,6 @@ class Supstr {
 
     $resp = wp_remote_get( $url, $get_args );
 
-    echo "http://express.memberpress.com/checkout/info/{$_REQUEST['token']}/{$license_key}<br/>";
     $json = json_decode( $resp['body'] );
 
     $post = array( 'post_status' => 'publish', 'post_type' => 'supstr-transaction' );
@@ -268,26 +267,26 @@ class Supstr {
       $json_message = base64_decode($json->message);
       $name_a = explode(' ', $json->response->charge->card->name);
       
-      $regexps = array( '/'.preg_quote('{$first_name}').'/',
-                        '/'.preg_quote('{$txn_num}').'/',
-                        '/'.preg_quote('{$txn_date}').'/',
-                        '/'.preg_quote('{$txn_price}').'/',
-                        '/'.preg_quote('{$txn_desc}').'/',
-                        '/'.preg_quote('{$txn_email}').'/',
-                        '/'.preg_quote('{$txn_buyer_name}').'/',
-                        '/'.preg_quote('{$txn_customer}').'/',
-                        '/'.preg_quote('{$txn_company}').'/' );
+      $regexps = array( '{$first_name}',
+                        '{$txn_num}',
+                        '{$txn_date}',
+                        '{$txn_price}',
+                        '{$txn_desc}',
+                        '{$txn_email}',
+                        '{$txn_buyer_name}',
+                        '{$txn_customer}',
+                        '{$txn_company}' );
       $replace = array( $name_a[0],
                         $json->response->charge->id,
                         date('Y-m-d H:i:s'),
-                        self::format_currency($json->price),
+                        self::format_currency((float)$json->price),
                         $json->description,
                         $json->email,
                         $json->response->charge->card->name,
                         $json->response->charge->customer,
                         $json->company );
 
-      $customer_body = preg_replace( $regexps, $replace, $json_message );
+      $customer_body = str_replace( $regexps, $replace, $json_message );
 
       wp_mail( $json->email, sprintf(__("** Receipt From %s"), get_option('blogname')), $customer_body, $headers );
     }
