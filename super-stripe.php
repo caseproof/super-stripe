@@ -19,6 +19,8 @@ define('SUPSTR_URL',plugins_url($path = '/'.SUPSTR_PLUGIN_NAME));
 define('SUPSTR_SCRIPT_URL',get_option('home').'/index.php?plugin=supstr');
 define('SUPSTR_OPTIONS_SLUG', 'supstr_options');
 
+require_once( SUPSTR_PATH . '/SupstrUpdateController.php' );
+
 class Supstr {
   public function __construct() {
     add_action('admin_menu', array($this, 'admin_menu'));
@@ -101,6 +103,10 @@ class Supstr {
   }
   
   public function display_form($message = '', $errors = array()) {
+    $connected = false;
+    if( $license_key = get_option('supstr_license_key') )
+      $connected = SupstrUpdateController::is_connected($license_key);
+
     require(SUPSTR_PATH.'/views/display_form.php');
   }
   
