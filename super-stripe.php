@@ -235,7 +235,7 @@ class Supstr {
     $args->license_key = $license_key;
     $args->email = $_REQUEST['supstr_email'];
     
-    $url = 'http://express.memberpress.com/checkout/setup';
+    $url = 'http://secure.superstripeapp.com/checkout/setup';
     
     $post_args = array( 'method' => 'POST',
                         'timeout' => 45,
@@ -256,14 +256,14 @@ class Supstr {
     
     $json = json_decode($resp['body']); 
     $token = $json->token;
-    $url = "http://express.memberpress.com/checkout/{$token}";
+    $url = "http://secure.superstripeapp.com/checkout/{$token}";
     
     wp_redirect( $url );
   }
   
   public function record_checkout() {
     $license_key = esc_attr(get_option('supstr_license_key'));
-    $url = "http://express.memberpress.com/checkout/info/{$_REQUEST['token']}/{$license_key}";
+    $url = "http://secure.superstripeapp.com/checkout/info/{$_REQUEST['token']}/{$license_key}";
 
     $get_args = array( 'method' => 'GET',
                        'timeout' => 45,
