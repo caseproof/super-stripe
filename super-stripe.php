@@ -92,6 +92,7 @@ class Supstr {
         }
         else {
           update_option('supstr_license_key', $_POST['supstr_license_key']);
+          update_option('supstr_livemode', isset($_POST['supstr_livemode']));
           $message = __('Super Stripe Options Updated Successfully');
         }
       }
@@ -106,6 +107,8 @@ class Supstr {
     $connected = false;
     if( $license_key = get_option('supstr_license_key') )
       $connected = SupstrUpdateController::is_connected($license_key);
+
+    $livemode = get_option('supstr_livemode');
 
     require(SUPSTR_PATH.'/views/display_form.php');
   }
