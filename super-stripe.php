@@ -165,6 +165,8 @@ class Supstr {
         !isset($atts["cancel_url"]) )
     { return ''; }
 
+    do_action('supstr-display-buy-now-form', $atts);
+
     $args = array_merge( array('button' => __('Buy Now'), 'currency' => 'USD'), $atts );
 
     $button = $args['button'];
@@ -293,6 +295,8 @@ class Supstr {
     update_post_meta( $post_id, '_supstr_txn_customer', $json->response->charge->customer );
     update_post_meta( $post_id, '_supstr_txn_response', $json );
 
+    do_action('supstr-transaction-complete', $post_id);
+
     $main_email = get_option('admin_email');
     $blogname = get_option('blogname');
 
@@ -313,11 +317,14 @@ class Supstr {
                              'txn_customer' => $json->response->charge->customer,
                              'txn_company' => $json->company );
 
+      $replacements = apply_filters('supstr-customer-email-vars', $replacements);
       $mkvars = create_function('$item', 'return \'{$\'.$item.\'}\';');
       $customer_body = str_replace( array_map( create_function( '$item', 'return \'{$\'.$item.\'}\';'),
                                                array_keys( $replacements ) ),
                                     array_values( $replacements ),
                                     $json_message );
+
+      $customer_body = apply_filters('supstr-customer-email-body', $customer_body);
 
       update_post_meta( $post_id, '_supstr_txn_replacements', $replacements );
       update_post_meta( $post_id, '_supstr_txn_message', $customer_body );
