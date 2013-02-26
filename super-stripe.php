@@ -3,7 +3,7 @@
 Plugin Name: Super Stripe
 Plugin URI: http://www.superstripeapp.com/
 Description: The plugin that makes it easy to accept stripe payments on your website
-Version: 1.0.1
+Version: 1.0.2
 Author: Caseproof, LLC
 Author URI: http://caseproof.com/
 Text Domain: super-stripe
@@ -242,10 +242,11 @@ class Supstr {
     $args->license_key = $license_key;
     $args->email = $_REQUEST['supstr_email'];
     
-    $url = 'http://secure.superstripeapp.com/checkout/setup';
+    $url = 'https://secure.superstripeapp.com/checkout/setup';
     
     $post_args = array( 'method' => 'POST',
                         'timeout' => 45,
+                        'sslverify' => false,
                         'blocking' => true,
                         'headers' => array( 'content-type' => 'application/json' ),
                         'body' => json_encode($args) );
@@ -263,18 +264,19 @@ class Supstr {
     
     $json = json_decode($resp['body']); 
     $token = $json->token;
-    $url = "http://secure.superstripeapp.com/checkout/{$token}";
+    $url = "https://secure.superstripeapp.com/checkout/{$token}";
     
     wp_redirect( $url );
   }
   
   public function record_checkout() {
     $license_key = esc_attr(get_option('supstr_license_key'));
-    $url = "http://secure.superstripeapp.com/checkout/info/{$_REQUEST['token']}/{$license_key}";
+    $url = "https://secure.superstripeapp.com/checkout/info/{$_REQUEST['token']}/{$license_key}";
 
     $get_args = array( 'method' => 'GET',
                        'timeout' => 45,
                        'blocking' => true,
+                       'sslverify' => false,
                        'headers' => array( 'content-type' => 'application/json' ),
                        'body' => '' );
 
