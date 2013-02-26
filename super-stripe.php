@@ -279,7 +279,9 @@ class Supstr {
       $uri = base64_decode($_REQUEST['url']);
       $delim = preg_match( '/\?/', $uri ) ? '&' : '?';
 
-      wp_redirect( $uri . $delim . 'token=' . $_REQUEST['token'] . '&status=error' );
+      $error = isset($_REQUEST['error']) ? "&error=" . urlencode($_REQUEST['error']) : "";
+
+      wp_redirect( $uri . $delim . 'token=' . $_REQUEST['token'] . '&status=error' . $error );
       exit;
     }
 
