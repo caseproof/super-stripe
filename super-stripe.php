@@ -299,6 +299,14 @@ class Supstr {
 
     $json = json_decode( $resp['body'] );
 
+    if( isset($json->response->error) ) {
+      $uri = base64_decode($_REQUEST['url']);
+      $delim = preg_match( '/\?/', $uri ) ? '&' : '?';
+
+      wp_redirect( $uri . $delim . 'token=' . $_REQUEST['token'] . '&status=error&error=' . urlencode($json->response->error) );
+      exit;
+    }
+
     $post = array( 'post_status' => 'publish', 'post_type' => 'supstr-transaction' );
 
     $post_id = wp_insert_post( $post );
