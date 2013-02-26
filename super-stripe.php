@@ -180,8 +180,8 @@ class Supstr {
     $args['trial_amount'] = 0.00;
     $args['message'] = base64_encode($content);
 
-    $args["return_url"] = home_url('index.php?plugin=supstr&action=record&url=' . urlencode( $args['return_url'] ));
-    $args["cancel_url"] = home_url('index.php?plugin=supstr&action=cancel&url=' . urlencode( $args['cancel_url'] ));
+    $args["return_url"] = home_url('index.php?url=' . base64_encode( $args['return_url'] ) . '&plugin=supstr&action=record');
+    $args["cancel_url"] = home_url('index.php?url=' . base64_encode( $args['cancel_url'] ) . '&plugin=supstr&action=cancel');
     $livemode = get_option('supstr_livemode');
     $args['livemode'] = (bool)$livemode;
 
@@ -193,7 +193,12 @@ class Supstr {
   public static function stripe_thank_you_shortcode($atts, $content = null) {
     global $wpdb;
 
-    if( !isset($_REQUEST['invoice']) or !isset($_REQUEST['token']) )
+    if( isset($_REQUEST['status']) and $_REQUEST['status']=='error' ) {
+      return sprintf(__('There was an error processing your payment%s'), isset($_REQUEST['error']) ? ": {$_REQUEST['error']}" : '');
+    }
+
+    if( !isset($_REQUEST['invoice']) or !isset($_REQUEST['token']) or
+        empty($_REQUEST['invoice']) or empty($_REQUEST['token']) )
       return '';
 
     $query = "SELECT p.ID FROM {$wpdb->posts} AS p " .
@@ -270,6 +275,14 @@ class Supstr {
   }
   
   public function record_checkout() {
+    if( $_REQUEST['status'] == 'error' ) {
+      $uri = base64_decode($_REQUEST['url']);
+      $delim = preg_match( '/\?/', $uri ) ? '&' : '?';
+
+      wp_redirect( $uri . $delim . 'token=' . $_REQUEST['token'] . '&status=error' );
+      exit;
+    }
+
     $license_key = esc_attr(get_option('supstr_license_key'));
     $url = "https://secure.superstripeapp.com/checkout/info/{$_REQUEST['token']}/{$license_key}";
 
@@ -381,9 +394,10 @@ class Supstr {
         wp_mail( $addr, sprintf(__("** New Payment on %s"), get_option('blogname')), $admin_body, $headers );
     }
 
-    $delim = preg_match( '/\?/', $_REQUEST['url'] ) ? '&' : '?';
+    $uri = base64_decode($_REQUEST['url']);
+    $delim = preg_match( '/\?/', $uri ) ? '&' : '?';
 
-    wp_redirect( $_REQUEST['url'] . $delim . 'token=' . $_REQUEST['token'] . '&invoice=' . $json->response->charge->id );
+    wp_redirect( $uri . $delim . 'token=' . $_REQUEST['token'] . '&invoice=' . $json->response->charge->id );
     exit;
   }
 
