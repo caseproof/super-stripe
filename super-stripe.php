@@ -16,6 +16,9 @@ define('SUPSTR_PLUGIN_SLUG',plugin_basename(__FILE__));
 define('SUPSTR_PLUGIN_NAME',dirname(SUPSTR_PLUGIN_SLUG));
 define('SUPSTR_PATH',WP_PLUGIN_DIR.'/'.SUPSTR_PLUGIN_NAME);
 define('SUPSTR_URL',plugins_url($path = '/'.SUPSTR_PLUGIN_NAME));
+define('SUPSTR_JS_URL',SUPSTR_URL.'/js');
+define('SUPSTR_CSS_URL',SUPSTR_URL.'/css');
+define('SUPSTR_VIEWS_PATH',SUPSTR_PATH.'/views');
 define('SUPSTR_SCRIPT_URL',get_option('home').'/index.php?plugin=supstr');
 define('SUPSTR_OPTIONS_SLUG', 'supstr_options');
 
@@ -25,6 +28,8 @@ class Supstr {
   public function __construct() {
     add_action('admin_menu', array($this, 'admin_menu'));
     add_action('init', array($this, 'route'));
+    add_action('init', array($this, 'add_shortcode_buttons'));
+    add_action('wp_ajax_supstr_shortcode_form', array($this, 'display_shortcode_form'));
     add_action('wp_enqueue_scripts', array($this, 'enqueue_front_scripts'));
     add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
     add_shortcode('super-stripe-form', array($this, 'stripe_form_shortcode'));
@@ -56,15 +61,15 @@ class Supstr {
     global $post;
     
     if(isset($post) && $post instanceof WP_Post && preg_match('#\[super-stripe-form#', $post->post_content)) {
-      wp_enqueue_script('supstr-validate-js', SUPSTR_URL.'/js/jquery.validate.js', array('jquery'));
-      wp_enqueue_script('supstr-shortcode-js', SUPSTR_URL.'/js/shortcode.js', array('jquery'));
+      wp_enqueue_script('supstr-validate-js', SUPSTR_JS_URL.'/jquery.validate.js', array('jquery'));
+      wp_enqueue_script('supstr-shortcode-js', SUPSTR_JS_URL.'/shortcode.js', array('jquery'));
     }
   }
   
   public function enqueue_admin_scripts($hook) {
     if(strstr($hook, 'super-stripe-txns') !== false) {
-      wp_enqueue_script('supstr-list-table-controls-js', SUPSTR_URL.'/js/table_controls.js', array('jquery'));
-      wp_enqueue_style('supstr-list-table-css', SUPSTR_URL.'/css/list-table.css');
+      wp_enqueue_script('supstr-list-table-controls-js', SUPSTR_JS_URL.'/table_controls.js', array('jquery'));
+      wp_enqueue_style('supstr-list-table-css', SUPSTR_CSS_URL.'/list-table.css');
     }
   }
   
@@ -431,6 +436,38 @@ class Supstr {
 
     return $rstr;
   }
+
+  // registers the buttons for use
+  public function register_buttons($buttons) {
+    array_push($buttons, "superstripe_form");
+    return $buttons;
+  }
+
+  // add the button to the tinyMCE bar
+  public function add_tinymce_plugin($plugin_array) {
+    $plugin_array['SuperStripe'] = SUPSTR_JS_URL . '/tinymce_form_popup.js';
+    return $plugin_array;
+  }
+
+  // filters the tinyMCE buttons and adds our custom buttons
+  public function add_shortcode_buttons() {
+    // Don't bother doing this stuff if the current user lacks permissions
+    if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') )
+      return;
+  
+    // Add only in Rich Editor mode
+    if ( get_user_option('rich_editing') == 'true') {
+      // filter the tinyMCE buttons and add our own
+      add_filter("mce_external_plugins", array($this,"add_tinymce_plugin"));
+      add_filter('mce_buttons', array($this,'register_buttons'));
+    }
+  }
+
+  public function display_shortcode_form() {
+    require( SUPSTR_VIEWS_PATH . '/tinymce_form_popup.php' );
+    exit;
+  }
+
 } //End class
 
 new Supstr();
