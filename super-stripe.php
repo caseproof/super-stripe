@@ -412,7 +412,15 @@ class Supstr {
   }
 
   public function cancel_checkout() {
+    if(isset($_REQUEST['url'])) {
+      $uri = base64_decode($_REQUEST['url']);
+      $delim = preg_match( '/\?/', $uri ) ? '&' : '?';
+
+      wp_redirect( $uri . $delim . 'token=' . $_REQUEST['token'] );
+    }
+
     // Send cancel email
+    exit;
   }
 
   public static function format_currency( $number, $show_symbol = true ) {
