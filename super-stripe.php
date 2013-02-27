@@ -319,7 +319,6 @@ class Supstr {
     update_post_meta( $post_id, '_supstr_txn_email', $json->email );
     update_post_meta( $post_id, '_supstr_txn_currency', $json->currency );
     update_post_meta( $post_id, '_supstr_txn_buyer_name', $json->response->charge->card->name );
-    update_post_meta( $post_id, '_supstr_txn_customer', $json->response->charge->customer );
     update_post_meta( $post_id, '_supstr_txn_response', $json );
 
     do_action('supstr-transaction-complete', $post_id);
@@ -341,7 +340,6 @@ class Supstr {
                              'txn_desc' => $json->description,
                              'txn_email' => $json->email,
                              'txn_buyer_name' => $json->response->charge->card->name,
-                             'txn_customer' => $json->response->charge->customer,
                              'txn_company' => $json->company );
 
       $replacements = apply_filters('supstr-customer-email-vars', $replacements);
@@ -385,10 +383,6 @@ class Supstr {
         <tr>
           <td><b><?php _e('Invoice:'); ?></b></td>
           <td><?php echo $json->response->charge->id; ?></td>
-        </tr>
-        <tr>
-          <td><b><?php _e('Customer:'); ?></b></td>
-          <td><?php echo $json->response->charge->customer; ?></td>
         </tr>
         <tr>
           <td><b><?php _e('Payee:'); ?></b></td>
