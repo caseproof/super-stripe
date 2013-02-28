@@ -97,7 +97,6 @@ class Supstr {
         }
         else {
           update_option('supstr_license_key', $_POST['supstr_license_key']);
-          update_option('supstr_livemode', isset($_POST['supstr_livemode']));
           $message = __('Super Stripe Options Updated Successfully');
         }
       }
@@ -112,8 +111,6 @@ class Supstr {
     $connected = false;
     if( $license_key = get_option('supstr_license_key') )
       $connected = SupstrUpdateController::is_connected($license_key);
-
-    $livemode = get_option('supstr_livemode');
 
     require(SUPSTR_PATH.'/views/display_form.php');
   }
@@ -187,8 +184,7 @@ class Supstr {
 
     $args["return_url"] = home_url('index.php?url=' . base64_encode( $args['return_url'] ) . '&plugin=supstr&action=record');
     $args["cancel_url"] = home_url('index.php?url=' . base64_encode( $args['cancel_url'] ) . '&plugin=supstr&action=cancel');
-    $livemode = get_option('supstr_livemode');
-    $args['livemode'] = (bool)$livemode;
+    $args['livemode'] = (bool)( isset( $atts['livemode'] ) ? ( $atts['livemode'] == 'true' ) : false );
 
     ob_start();
     require(SUPSTR_PATH.'/views/stripe_form_shortcode.php');

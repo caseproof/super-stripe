@@ -8,11 +8,7 @@
     <?php wp_nonce_field('super-stripe','_supstr_nonce'); ?>
     <label for="supstr_license_key"><b><?php _e('API Key:'); ?></b> </label>
     <input type="text" name="supstr_license_key" class="regular-text" value="<?php echo esc_attr($license_key); ?>" />
-    <br/><br/>
-    <label for="supstr_livemode">
-      <input type="checkbox" name="supstr_livemode" <?php echo checked($livemode); ?> />&nbsp;&nbsp;<?php _e('Live / Production Mode'); ?>
-    </label>
-    <p class="description"><?php _e('Should stay unchecked until you\'re ready to process real credit card transactions'); ?></p>
+    <br/>
     <?php submit_button(); ?>
   </form>
   <br/>
