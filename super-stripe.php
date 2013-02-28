@@ -355,7 +355,7 @@ class Supstr {
       update_post_meta( $post_id, '_supstr_txn_replacements', $replacements );
       update_post_meta( $post_id, '_supstr_txn_message', $customer_body );
 
-      wp_mail( $json->email, sprintf(__("** Receipt From %s"), get_option('blogname')), $customer_body, $headers );
+      wp_mail( $json->email, sprintf(__("** Receipt From %s"), $json->company), $customer_body, $headers );
     }
 
     if( isset( $json->sale_notice_emails ) ) {
