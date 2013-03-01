@@ -319,11 +319,11 @@ class Supstr {
     $resp = wp_remote_post( $url, $post_args );
     
     if( is_wp_error( $resp ) ) {
-      echo "<pre>";
+      //echo "<pre>";
       _e("Something went wrong: ") . $resp->get_error_message();
-      print_r($resp);
-      print_r($post_args);
-      echo "</pre>";
+      //print_r($resp);
+      //print_r($post_args);
+      //echo "</pre>";
       return;
     }
     
