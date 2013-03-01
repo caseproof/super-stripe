@@ -32,6 +32,7 @@ class Supstr {
     add_action('wp_ajax_supstr_shortcode_form', array($this, 'display_shortcode_form'));
     add_action('wp_enqueue_scripts', array($this, 'enqueue_front_scripts'));
     add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+    add_action('save_post', array($this, 'compile_shortcode'));
     add_shortcode('super-stripe-form', array($this, 'stripe_form_shortcode'));
     add_shortcode('super-stripe-thank-you', array($this, 'stripe_thank_you_shortcode'));
     
@@ -114,48 +115,104 @@ class Supstr {
 
     require(SUPSTR_PATH.'/views/display_form.php');
   }
-  
-  public static function stripe_form_shortcode($atts, $content = null) {
-    if(empty($content)) {
-      ob_start();
-      ?>
-      <p><?php _e('Dear {$first_name},'); ?></p>
-      <p><?php printf(__('Thank you for your purchase on %s. Keep this email for your records:'), get_option('blogname')); ?></p>
-      <br/>
-      <table>
-        <tr>
-          <td><b><?php _e('Name:'); ?></b></td>
-          <td>{$txn_buyer_name}</td>
-        </tr>
-        <tr>
-          <td><b><?php _e('Price:'); ?></b></td>
-          <td>{$txn_price}</td>
-        </tr>
-        <tr>
-          <td><b><?php _e('Description:'); ?></b></td>
-          <td>{$txn_desc}</td>
-        </tr>
-        <tr>
-          <td><b><?php _e('Payee:'); ?></b></td>
-          <td>{$txn_company}</td>
-        </tr>
-        <tr>
-          <td><b><?php _e('Invoice:'); ?></b></td>
-          <td>{$txn_num}</td>
-        </tr>
-        <tr>
-          <td><b><?php _e('Email:'); ?></b></td>
-          <td>{$txn_email}</td>
-        </tr>
-      </table>
-      <br/>
-      <p><?php _e('Cheers,'); ?><br/><br/>
-         <?php printf(__('The %s Team'), get_option('blogname')); ?></p>
-      <?php
 
-      $content = ob_get_contents();
-      ob_end_clean();
+  // Saves the shortcode info to the database so we don't have 
+  // to make it available on the page where private info can be exposed
+  public function compile_shortcode($post_id) {
+    if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
+      return $post_id;
+    
+    if(defined('DOING_AJAX'))
+      return;
+
+    //verify post is not a revision
+    if ( !wp_is_post_revision( $post_id ) ) {
+      $post = get_post($post_id);
+      $payment_forms = array();
+      $pattern = get_shortcode_regex();
+      preg_match_all("/$pattern/s", $post->post_content, $m);
+
+      foreach($m[3] as $i => $atts) {
+        // only record the super stripe form shortcodes
+        if( $m[2][$i] != 'super-stripe-form' )
+          continue;
+
+	$atts = shortcode_parse_atts( $atts );
+        $args = array_merge( array('button' => __('Buy Now'), 'currency' => 'USD'), $atts );
+
+        // No recurring stuff works in Super Stripe ... gotta go with MemberPress for that action
+        $args['period'] = 1;
+        $args['period_type'] = 'lifetime';
+        $args['trial'] = false;
+        $args['trial_days'] = 0;
+        $args['trial_amount'] = 0.00;
+
+        $args["return_url"] = home_url('index.php?url=' . base64_encode( $args['return_url'] ) . '&plugin=supstr&action=record');
+        $args["cancel_url"] = home_url('index.php?url=' . base64_encode( $args['cancel_url'] ) . '&plugin=supstr&action=cancel');
+        $args['livemode'] = (bool)( isset( $atts['livemode'] ) ? ( $atts['livemode'] == 'true' ) : false );
+        if( isset( $m[5][$i] ) and !empty($ $m[5][$i] ) )
+          $args['message'] = base64_encode($m[5][$i]);
+        else
+          $args['message'] = base64_encode(self::default_message());
+
+        $payment_forms[] = $args;
+      }
+
+      if( empty($payment_forms) )
+        delete_post_meta($post_id,'_supstr_payment_forms');
+      else
+        update_post_meta($post_id,'_supstr_payment_forms',$payment_forms);
     }
+  }
+
+  public static function default_message() {
+    ob_start();
+    ?>
+    <p><?php _e('Dear {$first_name},'); ?></p>
+    <p><?php printf(__('Thank you for your purchase on %s. Keep this email for your records:'), get_option('blogname')); ?></p>
+    <br/>
+    <table>
+      <tr>
+        <td><b><?php _e('Name:'); ?></b></td>
+        <td>{$txn_buyer_name}</td>
+      </tr>
+      <tr>
+        <td><b><?php _e('Price:'); ?></b></td>
+        <td>{$txn_price}</td>
+      </tr>
+      <tr>
+        <td><b><?php _e('Description:'); ?></b></td>
+        <td>{$txn_desc}</td>
+      </tr>
+      <tr>
+        <td><b><?php _e('Payee:'); ?></b></td>
+        <td>{$txn_company}</td>
+      </tr>
+      <tr>
+        <td><b><?php _e('Invoice:'); ?></b></td>
+        <td>{$txn_num}</td>
+      </tr>
+      <tr>
+        <td><b><?php _e('Email:'); ?></b></td>
+        <td>{$txn_email}</td>
+      </tr>
+    </table>
+    <br/>
+    <p><?php _e('Cheers,'); ?><br/><br/>
+       <?php printf(__('The %s Team'), get_option('blogname')); ?></p>
+    <?php
+
+    return ob_get_clean();
+  }
+  
+  public function stripe_form_shortcode($atts, $content = null) {
+    global $post;
+    static $form_count;
+
+    if(!isset($form_count))
+      $form_count=0;
+    else
+      $form_count++;
 
     $license_key = esc_attr(get_option('supstr_license_key'));
 
@@ -167,24 +224,12 @@ class Supstr {
         !isset($atts["cancel_url"]) )
     { return ''; }
 
-    do_action('supstr-display-buy-now-form', $atts);
+    $payment_forms = get_post_meta($post->ID,'_supstr_payment_forms',true);
 
-    $args = array_merge( array('button' => __('Buy Now'), 'currency' => 'USD'), $atts );
+    if( !isset($payment_forms[$form_count]) )
+      return '';
 
-    $button = $args['button'];
-    unset($args['button']);
-
-    // No recurring stuff works in Super Stripe ... gotta go with MemberPress for that action
-    $args['period'] = 1;
-    $args['period_type'] = 'lifetime';
-    $args['trial'] = false;
-    $args['trial_days'] = 0;
-    $args['trial_amount'] = 0.00;
-    $args['message'] = base64_encode($content);
-
-    $args["return_url"] = home_url('index.php?url=' . base64_encode( $args['return_url'] ) . '&plugin=supstr&action=record');
-    $args["cancel_url"] = home_url('index.php?url=' . base64_encode( $args['cancel_url'] ) . '&plugin=supstr&action=cancel');
-    $args['livemode'] = (bool)( isset( $atts['livemode'] ) ? ( $atts['livemode'] == 'true' ) : false );
+    $button = $payment_forms[$form_count]['button'];
 
     ob_start();
     require(SUPSTR_PATH.'/views/stripe_form_shortcode.php');
@@ -238,13 +283,27 @@ class Supstr {
   }
   
   public function process_checkout() {
-    $license_key = esc_attr(get_option('supstr_license_key'));
-    
-    if( !$license_key or !isset($_REQUEST['args']) or !isset($_REQUEST['supstr_email']) ) {
-      return '';
+    if(!isset($_REQUEST['_wpnonce']) or
+       !wp_verify_nonce($_REQUEST['_wpnonce'],'Super Stripe Payment Form')) {
+      die();
     }
-    
-    $args = json_decode( base64_decode( $_REQUEST['args'] ) );
+
+    $license_key = esc_attr(get_option('supstr_license_key'));
+
+    if( !$license_key or !isset($_REQUEST['args']) or !isset($_REQUEST['supstr_email']) )
+      return '';
+
+    if( !isset($_REQUEST['pid']) )
+      return '';
+
+    $post = get_post($_REQUEST['pid']);
+
+    $payment_forms = get_post_meta($post->ID,'_supstr_payment_forms',true);
+
+    if( !isset($payment_forms[$_REQUEST['args']]) )
+      return '';
+
+    $args = (object)$payment_forms[$_REQUEST['args']];
     $args->license_key = $license_key;
     $args->email = $_REQUEST['supstr_email'];
     
