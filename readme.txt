@@ -4,7 +4,7 @@ Donate link: http://superstripeapp.com
 Tags: charge, chargly, charity, donation, donations, form, gravatar, money, pay, payment, paypal, recent, recurly, stripe, transaction, transfer, shortcode, authorize.net, credit cards, forms, online payment, payment, payments
 Requires at least: 3.5.1
 Tested up to: 3.5.1
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 
 A cloud-backed plugin that will allow you securely accepting Credit Card payments on your website using Stripe without having to purchase or install an SSL certificate.
 
@@ -55,11 +55,11 @@ Stripe can charge credit cards from any place in the world but Stripe is current
 
 == Changelog ==
 
-= 1.0.8 =
+= 1.0.9 =
 * Added tinymce shortcode generator popup
 
 == Upgrade Notice ==
 
-= 1.0.8 =
+= 1.0.9 =
 * Initial release on wordpress.org
 
