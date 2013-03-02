@@ -1,7 +1,7 @@
 === Super Stripe ===
 Contributors: supercleanse
 Donate link: http://superstripeapp.com
-Tags: charge, chargly, charity, donation, donations, form, gravatar, money, pay, payment, paypal, recent, recurly, stripe, transaction, transfer, shortcode, authorize.net, credit cards, forms, online payment, payment, payments
+Tags: charge, charity, donation, donations, form, money, pay, payment, paypal, stripe, transaction, shortcode, authorize.net, credit cards, forms, payments, downloads, page, pages, post, posts, ssl, pci, cloud, service, memberpress, membership, content, protection
 Requires at least: 3.5.1
 Tested up to: 3.5.1
 Stable tag: 1.1.1
@@ -10,7 +10,7 @@ A cloud-backed plugin that lets you securely accept Credit Card payments on your
 
 == Description ==
 
-[Super Stipe](http://superstripeapp.com "Super Stripe Credit Card Processing for WordPress") is perfect for people who want to process credit cards but don't want to go through the hassle of installing an ssl certificate.
+[Super Stripe](http://superstripeapp.com "Super Stripe Credit Card Processing for WordPress") is perfect for people who want to process credit cards but don't want to go through the hassle of installing an ssl certificate.
 
 Super Stripe is great for selling digital goods, running promotions or accepting payments for services.
 
@@ -38,7 +38,7 @@ Upgrading to [MemberPress](http://www.memberpress.com "MemberPress") will enable
 3. Sell & protect access to your content and digital downloads
 4. Create and manage payment subscriptions
 
-= How Simple Stripe Works =
+= How Super Stripe Works =
 
 We’ve built a secure, robust, cloud-based payment system (superstripeapp.com) that our WordPress plugin uses to process payments with Stripe.
 
