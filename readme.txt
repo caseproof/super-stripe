@@ -6,7 +6,7 @@ Requires at least: 3.5.1
 Tested up to: 3.5.1
 Stable tag: 1.1.0
 
-A cloud-backed plugin that will allow you securely accepting Credit Card payments on your website using Stripe without having to purchase or install an SSL certificate.
+A cloud-backed plugin that lets you securely accept Credit Card payments on your site using Stripe without needing to install an SSL certificate.
 
 == Description ==
 
@@ -19,7 +19,23 @@ A cloud-backed plugin that will allow you securely accepting Credit Card payment
 5. Send a customizable email receipt to your users
 6. Fully PCI compliant
 
-= How it Works =
+= Will Super Stripe help me setup recurring payments or protect content? =
+
+No. Super Stripe just does simple credit card payments.
+
+= Upgrade to MemberPress =
+
+Super Stripe will let you charge credit cards very easily and reliably ... But if you want to do more you'll want to check out our premium Membership plugin [MemberPress](http://www.memberpress.com "MemberPress").
+[About](http://www.memberpress.com/about "About MemberPress") | [Tour](http://www.memberpress.com/tour "Take the MemberPress Tour") | [FAQ](http://www.memberpress.com/faq "MemberPress FAQ") | [Pricing](http://www.memberpress.com/plans/memberpress "MemberPress Pricing")
+
+Upgrading to [MemberPress](http://www.memberpress.com "MemberPress") will enable you to:
+
+1. Build Rock-Solid Membership Sites
+2. Charge Credit Cards securely from your website using Stripe, PayPal & Authorize.net
+2. Sell access to your content and digital downloads
+3. Create and manage payment subscriptions
+
+= How Simple Stripe Works =
 
 We’ve built a secure, robust, cloud-based payment system (superstripeapp.com) that our WordPress plugin uses to process payments with Stripe.
 
@@ -46,6 +62,7 @@ Stripe also assesses a 2.3% + $0.30 fee on each transaction. So the way this wor
 = Is Super Stripe available to international merchants? =
 
 Stripe can charge credit cards from any place in the world but Stripe is currently only available to merchants in the United States and Canada — and since Super Stripe is fully dependent on Stripe, it too is limited to merchants living in the United States and Canada.
+
 
 == Installation ==
 

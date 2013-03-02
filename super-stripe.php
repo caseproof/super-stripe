@@ -22,11 +22,17 @@ define('SUPSTR_VIEWS_PATH',SUPSTR_PATH.'/views');
 define('SUPSTR_SCRIPT_URL',get_option('home').'/index.php?plugin=supstr');
 define('SUPSTR_OPTIONS_SLUG', 'supstr_options');
 
+if(defined('SUPSTR_CUSTOM_ENDPOINT'))
+  define('SUPSTR_ENDPOINT', SUPSTR_CUSTOM_ENDPOINT); 
+else
+  define('SUPSTR_ENDPOINT', 'https://secure.superstripeapp.com'); 
+
 require_once( SUPSTR_PATH . '/SupstrUpdateController.php' );
 
 class Supstr {
   public function __construct() {
     add_action('admin_menu', array($this, 'admin_menu'));
+    add_action('admin_notices', array($this, 'connect_warning'));
     add_action('init', array($this, 'route'));
     add_action('init', array($this, 'add_shortcode_buttons'));
     add_action('wp_ajax_supstr_shortcode_form', array($this, 'display_shortcode_form'));
@@ -66,6 +72,23 @@ class Supstr {
       wp_enqueue_script('supstr-shortcode-js', SUPSTR_JS_URL.'/shortcode.js', array('jquery'));
     }
   }
+
+  public function connect_warning() {
+    $connected = get_option('supstr_connected'); 
+    if(isset($_POST['supstr_license_key']))
+      $license_key = $_POST['supstr_license_key'];
+    else
+      $license_key = get_option('supstr_license_key');
+
+    if( empty($license_key) ) {
+      require SUPSTR_VIEWS_PATH . '/setup_headline.php';
+      update_option('supstr_connected',false); 
+    }
+    else if( !$connected and !SupstrUpdateController::is_connected($license_key) ) {
+      require SUPSTR_VIEWS_PATH . '/setup_headline.php';
+      update_option('supstr_connected',false); 
+    }
+  }
   
   public function enqueue_admin_scripts($hook) {
     if(strstr($hook, 'super-stripe-txns') !== false) {
@@ -93,11 +116,12 @@ class Supstr {
     
     if( strtolower($_SERVER['REQUEST_METHOD']) == 'post' ) {
       if( wp_verify_nonce($_POST['_supstr_nonce'],'super-stripe') ) {
-        if( empty($_POST['supstr_license_key']) ) {
-          $errors[] = __('License Key can\'t be blank.');
+        if( !empty($_POST['supstr_license_key']) and !SupstrUpdateController::is_connected($_POST['supstr_license_key']) ) {
+          $errors[] = sprintf(__('API Key must be valid and connected to your Super Stripe account. %sRead the Instructions%s to see how to do this.'), '<a href="http://superstripeapp.com/docs">', '</a>');
         }
         else {
           update_option('supstr_license_key', $_POST['supstr_license_key']);
+          update_option('supstr_connected', SupstrUpdateController::is_connected($_POST['supstr_license_key']));
           $message = __('Super Stripe Options Updated Successfully');
         }
       }
@@ -150,7 +174,7 @@ class Supstr {
         $args["return_url"] = home_url('index.php?url=' . base64_encode( $args['return_url'] ) . '&plugin=supstr&action=record');
         $args["cancel_url"] = home_url('index.php?url=' . base64_encode( $args['cancel_url'] ) . '&plugin=supstr&action=cancel');
         $args['livemode'] = (bool)( isset( $atts['livemode'] ) ? ( $atts['livemode'] == 'true' ) : false );
-        if( isset( $m[5][$i] ) and !empty($ $m[5][$i] ) )
+        if( isset( $m[5][$i] ) and !empty( $m[5][$i] ) )
           $args['message'] = base64_encode($m[5][$i]);
         else
           $args['message'] = base64_encode(self::default_message());
@@ -165,12 +189,9 @@ class Supstr {
     }
   }
 
-  public static function default_message() {
+  public static function receipt_info() {
     ob_start();
     ?>
-    <p><?php _e('Dear {$first_name},'); ?></p>
-    <p><?php printf(__('Thank you for your purchase on %s. Keep this email for your records:'), get_option('blogname')); ?></p>
-    <br/>
     <table>
       <tr>
         <td><b><?php _e('Name:'); ?></b></td>
@@ -197,6 +218,17 @@ class Supstr {
         <td>{$txn_email}</td>
       </tr>
     </table>
+    <?php
+    return ob_get_clean();
+  }
+
+  public static function default_message() {
+    ob_start();
+    ?>
+    <p><?php _e('Dear {$first_name},'); ?></p>
+    <p><?php printf(__('Thank you for your purchase on %s. Keep this email for your records:'), get_option('blogname')); ?></p>
+    <br/>
+    {$txn_receipt}
     <br/>
     <p><?php _e('Cheers,'); ?><br/><br/>
        <?php printf(__('The %s Team'), get_option('blogname')); ?></p>
@@ -307,7 +339,7 @@ class Supstr {
     $args->license_key = $license_key;
     $args->email = $_REQUEST['supstr_email'];
     
-    $url = 'https://secure.superstripeapp.com/checkout/setup';
+    $url = SUPSTR_ENDPOINT . '/checkout/setup';
     
     $post_args = array( 'method' => 'POST',
                         'timeout' => 45,
@@ -319,17 +351,13 @@ class Supstr {
     $resp = wp_remote_post( $url, $post_args );
     
     if( is_wp_error( $resp ) ) {
-      //echo "<pre>";
       _e("Something went wrong: ") . $resp->get_error_message();
-      //print_r($resp);
-      //print_r($post_args);
-      //echo "</pre>";
       return;
     }
     
     $json = json_decode($resp['body']); 
     $token = $json->token;
-    $url = "https://secure.superstripeapp.com/checkout/{$token}";
+    $url = SUPSTR_ENDPOINT . "/checkout/{$token}";
     
     wp_redirect( $url );
   }
@@ -346,7 +374,7 @@ class Supstr {
     }
 
     $license_key = esc_attr(get_option('supstr_license_key'));
-    $url = "https://secure.superstripeapp.com/checkout/info/{$_REQUEST['token']}/{$license_key}";
+    $url = SUPSTR_ENDPOINT . "/checkout/info/{$_REQUEST['token']}/{$license_key}";
 
     $get_args = array( 'method' => 'GET',
                        'timeout' => 45,
@@ -391,7 +419,10 @@ class Supstr {
 
     if( isset( $json->message ) ) {
       $json_message = base64_decode($json->message);
+
       $name_a = explode(' ', $json->response->charge->card->name);
+      $receipt_info = self::receipt_info();
+      $json_message = preg_replace('/\{\$txn_receipt\}/',$receipt_info,$json_message);
       
       $replacements = array( 'first_name' => $name_a[0],
                              'txn_num' => $json->response->charge->id,
