@@ -3,7 +3,7 @@
 Plugin Name: Super Stripe
 Plugin URI: http://www.superstripeapp.com/
 Description: The plugin that makes it easy to accept stripe payments on your website
-Version: 1.1.0
+Version: 1.1.1
 Author: Caseproof, LLC
 Author URI: http://caseproof.com/
 Text Domain: super-stripe
@@ -175,7 +175,7 @@ class Supstr {
         $args["cancel_url"] = home_url('index.php?url=' . base64_encode( $args['cancel_url'] ) . '&plugin=supstr&action=cancel');
         $args['livemode'] = (bool)( isset( $atts['livemode'] ) ? ( $atts['livemode'] == 'true' ) : false );
         if( isset( $m[5][$i] ) and !empty( $m[5][$i] ) )
-          $args['message'] = base64_encode($m[5][$i]);
+          $args['message'] = base64_encode(wpautop($m[5][$i]));
         else
           $args['message'] = base64_encode(self::default_message());
 

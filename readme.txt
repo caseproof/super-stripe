@@ -4,36 +4,39 @@ Donate link: http://superstripeapp.com
 Tags: charge, chargly, charity, donation, donations, form, gravatar, money, pay, payment, paypal, recent, recurly, stripe, transaction, transfer, shortcode, authorize.net, credit cards, forms, online payment, payment, payments
 Requires at least: 3.5.1
 Tested up to: 3.5.1
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 
 A cloud-backed plugin that lets you securely accept Credit Card payments on your site using Stripe without needing to install an SSL certificate.
 
 == Description ==
 
-= Benefits & Features =
+[Super Stipe](http://superstripeapp.com "Super Stripe Credit Card Processing for WordPress") is perfect for people who want to process credit cards but don't want to go through the hassle of installing an ssl certificate.
 
-1. Securely charge credit cards from your WordPress website without having to purchase or install an SSL certificate on your site
+Super Stripe is great for selling digital goods, running promotions or accepting payments for services.
+
+You can get more information about Super Stripe [here](http://superstripeapp.com "Super Stripe Credit Card Processing for WordPress").
+
+= Super Stripe Benefits & Features =
+
+1. Securely charge credit cards from your WordPress website without having to purchase or install an SSL certificate
 2. Easy to setup an infinite number of payment forms using simple WordPress shortcodes
 3. Track payments from your WordPress website
 4. Send payment notices to as many addresses as you want
 5. Send a customizable email receipt to your users
 6. Fully PCI compliant
 
-= Will Super Stripe help me setup recurring payments or protect content? =
-
-No. Super Stripe just does simple credit card payments.
-
 = Upgrade to MemberPress =
 
-Super Stripe will let you charge credit cards very easily and reliably ... But if you want to do more you'll want to check out our premium Membership plugin [MemberPress](http://www.memberpress.com "MemberPress").
+Super Stripe will let you charge credit cards very easily and reliably ... But if you want to do this and more you'll want to check out our premium Membership plugin [MemberPress](http://www.memberpress.com "MemberPress").
+
 [About](http://www.memberpress.com/about "About MemberPress") | [Tour](http://www.memberpress.com/tour "Take the MemberPress Tour") | [FAQ](http://www.memberpress.com/faq "MemberPress FAQ") | [Pricing](http://www.memberpress.com/plans/memberpress "MemberPress Pricing")
 
 Upgrading to [MemberPress](http://www.memberpress.com "MemberPress") will enable you to:
 
 1. Build Rock-Solid Membership Sites
 2. Charge Credit Cards securely from your website using Stripe, PayPal & Authorize.net
-2. Sell access to your content and digital downloads
-3. Create and manage payment subscriptions
+3. Sell & protect access to your content and digital downloads
+4. Create and manage payment subscriptions
 
 = How Simple Stripe Works =
 
@@ -53,7 +56,7 @@ That’s it!
 
 And you can use this on an unlimited number of sites after you have your API key.
 
-= How is this Free? =
+= Is this Free? =
 
 We are committed to making this the easiest to use payment solution for WordPress based merchants so we’ve set it up so we only make money when you do–that’s why this plugin and cloud based service are free … all we do is charge a flat 4.9% fee on top of each transaction.
 
@@ -75,8 +78,15 @@ Stripe can charge credit cards from any place in the world but Stripe is current
 = 1.1.0 =
 * Added tinymce shortcode generator popup
 
+= 1.1.1 =
+* Fixed an issue with custom emails
+* Added a configuration warning message
+
 == Upgrade Notice ==
 
 = 1.1.0 =
 * Initial release on wordpress.org
+
+= 1.1.1 =
+* Everyone should upgrade
 
