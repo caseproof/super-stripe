@@ -10,7 +10,7 @@ A cloud-backed plugin that lets you securely accept Credit Card payments on your
 
 == Description ==
 
-[Super Stripe](http://superstripeapp.com "Super Stripe Credit Card Processing for WordPress") is perfect for people who want to process credit cards but don't want to go through the hassle of installing an ssl certificate.
+[Super Stripe](http://superstripeapp.com "Super Stripe Credit Card Processing for WordPress") is perfect for people who want to process credit cards but don't want to go through the hassle of getting a dedicated IP address or installing an ssl certificate.
 
 Super Stripe is great for selling digital goods, running promotions or accepting payments for services.
 
@@ -27,7 +27,7 @@ You can get more information about Super Stripe [here](http://superstripeapp.com
 
 = Upgrade to MemberPress =
 
-Super Stripe will let you charge credit cards very easily and reliably ... But if you want to do this and more you'll want to check out our premium Membership plugin [MemberPress](http://www.memberpress.com "MemberPress").
+Super Stripe will let you charge credit cards very easily and reliably ... But if you want to do this and more you'll want to check out our commercial Membership plugin [MemberPress](http://www.memberpress.com "MemberPress").
 
 [About](http://www.memberpress.com/about "About MemberPress") | [Tour](http://www.memberpress.com/tour "Take the MemberPress Tour") | [FAQ](http://www.memberpress.com/faq "MemberPress FAQ") | [Pricing](http://www.memberpress.com/plans/memberpress "MemberPress Pricing")
 
@@ -58,9 +58,9 @@ And you can use this on an unlimited number of sites after you have your API key
 
 = Is this Free? =
 
-We are committed to making this the easiest to use payment solution for WordPress based merchants so we’ve set it up so we only make money when you do–that’s why this plugin and cloud based service are free … all we do is charge a flat 4.9% fee on top of each transaction.
+We are committed to making this the easiest to use payment solution for WordPress based merchants so we’ve set it up so we only make money when you do–that’s why this plugin and cloud based service are free … all we do is charge 1.5% + 15¢ fee on top of each transaction.
 
-Stripe also assesses a 2.3% + $0.30 fee on each transaction. So the way this works is if you billed someone $15 then you’d actually collect $13.63 after fees — which Stripe will automatically deposit directly into your bank account.
+Stripe also assesses a 2.9% + $0.30 fee on each transaction. So the way this works is if you billed someone $20 then you’d actually collect $18.67 after fees — which Stripe will automatically deposit directly into your bank account.
 
 = Is Super Stripe available to international merchants? =
 
