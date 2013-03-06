@@ -3,7 +3,7 @@
 Plugin Name: Super Stripe
 Plugin URI: http://www.superstripeapp.com/
 Description: The plugin that makes it easy to accept stripe payments on your website
-Version: 1.1.1
+Version: 1.1.2
 Author: Caseproof, LLC
 Author URI: http://caseproof.com/
 Text Domain: super-stripe
