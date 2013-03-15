@@ -7,7 +7,7 @@ class SupstrUtils {
     $query = "SELECT pm.post_id " .
                "FROM {$wpdb->postmeta} AS pm " .
               "WHERE pm.meta_key='_supstr_txn_num' " .
-                "AND pm.meta_value=%d " .
+                "AND pm.meta_value=%s " .
               "LIMIT 1";
 
     $query = $wpdb->prepare($query, $txn_num);
@@ -50,12 +50,20 @@ class SupstrUtils {
     * @return string Temporary Amazon S3 URL
     * @see http://awsdocs.s3.amazonaws.com/S3/20060301/s3-dg-20060301.pdf
     */
-  public static function el_s3_getTemporaryLink($accessKey, $secretKey, $bucket, $path, $expires = '5:00') {
+  public static function el_s3_getTemporaryLink($accessKey, $secretKey, $bucket, $path, $expires = '5:00', $time = null) {
+    if( is_null($time) ) {
+      $time = time();
+    }
+    else {
+      $ta = date_parse($time);
+      $time = mktime($ta['hour'],$ta['minute'],$ta['second'],$ta['month'],$ta['day'],$ta['year']);
+    }
+
     // Calculate expiry time
     $ex = explode(':',$expires);
     $ex_min = (int)$ex[0];
     $ex_sec = isset($ex[1]) ? (int)$ex[1] : 0;
-    $expires = time() + ($ex_min * 60) + $ex_sec;
+    $expires = $time + ($ex_min * 60) + $ex_sec;
     // Fix the path; encode and sanitize
     $path = str_replace('%2F', '/', rawurlencode($path = ltrim($path, '/')));
     // Path for signature starts with the bucket

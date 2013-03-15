@@ -264,7 +264,7 @@ class Supstr {
     if( empty($txn) )
       return '';
 
-    $link_key = base64_encode(md5("{$atts['bucket']}:{$atts['path']}"));
+    $link_key = base64_encode(md5(json_encode($atts)));
     $links = get_post_meta( $txn->ID, '_supstr_links', true );
 
     if( empty($links) or !is_array($links) )
@@ -288,11 +288,14 @@ class Supstr {
       return home_url("index.php?plugin=supstr&action=aws_link&i={$_REQUEST['invoice']}&l=".urlencode($link_key));
     }
 
+    $created_at = get_post_meta( $txn->ID, '_supstr_txn_date', true );
+
     $s3_url = SupstrUtils::el_s3_getTemporaryLink( $access_key,
                                                    $secret_key,
                                                    $atts['bucket'],
                                                    $atts['path'],
-                                                   $atts['expires'] );
+                                                   $atts['expires'],
+                                                   $created_at );
 
     return $s3_url;
   }
@@ -302,6 +305,9 @@ class Supstr {
     $secret_key = get_option('supstr_aws_secret_key');
 
     if(empty($access_key) or empty($secret_key))
+      return '';
+
+    if( empty($_REQUEST['invoice']) or empty($atts['bucket']) or empty($atts['path']) )
       return '';
 
     $s3_url = $this->aws_url_shortcode( $atts, $content );
