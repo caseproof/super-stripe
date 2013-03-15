@@ -29,6 +29,7 @@ else
   define('SUPSTR_ENDPOINT', 'https://secure.superstripeapp.com'); 
 
 require_once( SUPSTR_LIB_PATH . '/SupstrUpdateController.php' );
+require_once( SUPSTR_LIB_PATH . '/SupstrMailchimpController.php');
 require_once( SUPSTR_LIB_PATH . '/SupstrTransactionsTable.php' );
 require_once( SUPSTR_LIB_PATH . '/SupstrUtils.php' );
 
@@ -75,6 +76,7 @@ class Supstr {
     if(isset($post) && $post instanceof WP_Post && preg_match('#\[super-stripe-form#', $post->post_content)) {
       wp_enqueue_script('supstr-validate-js', SUPSTR_JS_URL.'/jquery.validate.js', array('jquery'));
       wp_enqueue_script('supstr-shortcode-js', SUPSTR_JS_URL.'/shortcode.js', array('jquery'));
+      wp_enqueue_script('supstr-aweber-js', SUPSTR_JS_URL.'/aweber.js', array('jquery'));
     }
   }
 
@@ -172,7 +174,18 @@ class Supstr {
           continue;
 
 	$atts = shortcode_parse_atts( $atts );
-        $args = array_merge( array('button' => __('Buy Now'), 'currency' => 'USD'), $atts );
+        $args = array_merge( array( 'button' => __('Buy Now'),
+                                    'show_name' => 'false',
+                                    'show_address' => 'false',
+                                    'aweber' => 'false',
+                                    'aweber_message' => __('Please send me more information about this product.'),
+                                    'aweber_list' => '',
+                                    'mailchimp' => 'false',
+                                    'mailchimp_apikey' => '',
+                                    'mailchimp_list_id' => '',
+                                    'mailchimp_double_optin' => 'false',
+                                    'mailchimp_message' => __('Please send me more information about this product.'),
+                                    'currency' => 'USD' ), $atts );
 
         // No recurring stuff works in Super Stripe ... gotta go with MemberPress for that action
         $args['period'] = 1;
@@ -184,6 +197,7 @@ class Supstr {
         $args["return_url"] = home_url('index.php?url=' . base64_encode( $args['return_url'] ) . '&plugin=supstr&action=record');
         $args["cancel_url"] = home_url('index.php?url=' . base64_encode( $args['cancel_url'] ) . '&plugin=supstr&action=cancel');
         $args['livemode'] = (bool)( isset( $atts['livemode'] ) ? ( $atts['livemode'] == 'true' ) : false );
+
         if( isset( $m[5][$i] ) and !empty( $m[5][$i] ) )
           $args['message'] = base64_encode(wpautop($m[5][$i]));
         else
@@ -236,6 +250,16 @@ class Supstr {
       return '';
 
     $button = $payment_forms[$form_count]['button'];
+    $show_name = (isset($payment_forms[$form_count]['show_name']) and $payment_forms[$form_count]['show_name']=='true');
+    $show_address = (isset($payment_forms[$form_count]['show_address']) and $payment_forms[$form_count]['show_address']=='true');
+    $aweber = (isset($payment_forms[$form_count]['aweber']) and $payment_forms[$form_count]['aweber']=='true');
+    $aweber_message = $payment_forms[$form_count]['aweber_message'];
+    $aweber_list = $payment_forms[$form_count]['aweber_list'];
+    $mailchimp = (isset($payment_forms[$form_count]['mailchimp']) and $payment_forms[$form_count]['mailchimp']=='true');
+    $mailchimp_message = $payment_forms[$form_count]['mailchimp_message'];
+    $mailchimp_apikey = $payment_forms[$form_count]['mailchimp_apikey'];
+    $mailchimp_list_id = $payment_forms[$form_count]['mailchimp_list_id'];
+    $mailchimp_double_optin = $payment_forms[$form_count]['mailchimp_double_optin'];
 
     ob_start();
     require(SUPSTR_VIEWS_PATH.'/stripe_form_shortcode.php');
@@ -389,30 +413,45 @@ class Supstr {
     $args = (object)$payment_forms[$_REQUEST['args']];
     $args->license_key = $license_key;
     $args->email = $_REQUEST['supstr_email'];
-    
+
+    if($args->show_name=='true') {
+      $args->first_name = $_REQUEST['supstr_first_name'];
+      $args->last_name = $_REQUEST['supstr_last_name'];
+    }
+
+    if($args->show_address=='true') {
+      $args->address = $_REQUEST['supstr_address'];
+      $args->city    = $_REQUEST['supstr_city'];
+      $args->state   = $_REQUEST['supstr_state'];
+      $args->zip     = $_REQUEST['supstr_zip'];
+      $args->country = $_REQUEST['supstr_country'];
+    }
+
     $url = SUPSTR_ENDPOINT . '/checkout/setup';
-    
+
     $post_args = array( 'method' => 'POST',
                         'timeout' => 45,
                         'sslverify' => false,
                         'blocking' => true,
                         'headers' => array( 'content-type' => 'application/json' ),
                         'body' => json_encode($args) );
-    
+
     $resp = wp_remote_post( $url, $post_args );
-    
+
     if( is_wp_error( $resp ) ) {
       _e("Something went wrong: ") . $resp->get_error_message();
       return;
     }
-    
+
     $json = json_decode($resp['body']); 
     $token = $json->token;
     $url = SUPSTR_ENDPOINT . "/checkout/{$token}";
-    
+
+    do_action('supstr-process-signup', $args);
+
     wp_redirect( $url );
   }
-  
+
   public function record_checkout() {
     if( $_REQUEST['status'] == 'error' ) {
       $uri = base64_decode($_REQUEST['url']);
@@ -459,6 +498,22 @@ class Supstr {
     update_post_meta( $post_id, '_supstr_txn_currency', $json->currency );
     update_post_meta( $post_id, '_supstr_txn_buyer_name', $json->response->charge->card->name );
     update_post_meta( $post_id, '_supstr_txn_response', $json );
+
+    update_post_meta( $post_id, '_supstr_txn_show_name', $json->show_name=='true' );
+    update_post_meta( $post_id, '_supstr_txn_show_address', $json->show_address=='true' );
+   
+    if( $json->show_name=='true' ) {
+      update_post_meta( $post_id, '_supstr_txn_first_name', $json->first_name );
+      update_post_meta( $post_id, '_supstr_txn_last_name', $json->last_name );
+    }
+
+    if( $json->show_address=='true' ) {
+      update_post_meta( $post_id, '_supstr_txn_address', $json->address );
+      update_post_meta( $post_id, '_supstr_txn_city', $json->city );
+      update_post_meta( $post_id, '_supstr_txn_state', $json->state );
+      update_post_meta( $post_id, '_supstr_txn_zip', $json->zip );
+      update_post_meta( $post_id, '_supstr_txn_country', $json->country );
+    }
 
     do_action('supstr-transaction-complete', $post_id);
 

@@ -41,4 +41,13 @@ jQuery(document).ready(function() {
     else
       window.location = loc;
   });
+
+  jQuery('.supstr-toggle-extended').click( function(e) {
+    var txn_id = jQuery(this).attr('data-id'); 
+
+    jQuery('#extended_record_' + txn_id).slideToggle('slow');
+
+    return false;
+  });
+
 });

@@ -10,3 +10,27 @@ div#table-actions {
   width:auto;
   float:left;
 }
+
+.supstr-extended {
+  display: none;
+}
+
+.supstr-extended-info-title {
+  font-weight: bold;
+  font-size: 120%;
+}
+
+.supstr-extended-info-table {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.supstr-extended-info-label,
+.supstr-extended-info-field {
+  display: inline-block;
+}
+
+.supstr-extended-info-label {
+  width: 100px;
+  font-weight: bold;
+}
