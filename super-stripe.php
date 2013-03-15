@@ -3,7 +3,7 @@
 Plugin Name: Super Stripe
 Plugin URI: http://www.superstripeapp.com/
 Description: The plugin that makes it easy to accept stripe payments on your website
-Version: 1.1.2
+Version: 1.1.3rc1
 Author: Caseproof, LLC
 Author URI: http://caseproof.com/
 Text Domain: super-stripe
@@ -15,6 +15,7 @@ if(!defined('ABSPATH')) {die('You are not allowed to call this page directly.');
 define('SUPSTR_PLUGIN_SLUG',plugin_basename(__FILE__));
 define('SUPSTR_PLUGIN_NAME',dirname(SUPSTR_PLUGIN_SLUG));
 define('SUPSTR_PATH',WP_PLUGIN_DIR.'/'.SUPSTR_PLUGIN_NAME);
+define('SUPSTR_LIB_PATH',SUPSTR_PATH.'/lib');
 define('SUPSTR_URL',plugins_url($path = '/'.SUPSTR_PLUGIN_NAME));
 define('SUPSTR_JS_URL',SUPSTR_URL.'/js');
 define('SUPSTR_CSS_URL',SUPSTR_URL.'/css');
@@ -27,9 +28,9 @@ if(defined('SUPSTR_CUSTOM_ENDPOINT'))
 else
   define('SUPSTR_ENDPOINT', 'https://secure.superstripeapp.com'); 
 
-require_once( SUPSTR_PATH . '/SupstrUpdateController.php' );
-require_once( SUPSTR_PATH . '/SupstrTransactionsTable.php' );
-require_once( SUPSTR_PATH . '/SupstrUtils.php' );
+require_once( SUPSTR_LIB_PATH . '/SupstrUpdateController.php' );
+require_once( SUPSTR_LIB_PATH . '/SupstrTransactionsTable.php' );
+require_once( SUPSTR_LIB_PATH . '/SupstrUtils.php' );
 
 class Supstr {
   public function __construct() {
