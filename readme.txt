@@ -1,10 +1,10 @@
 === Super Stripe ===
 Contributors: supercleanse
 Donate link: http://superstripeapp.com
-Tags: charge, charity, donation, donations, form, money, pay, payment, paypal, stripe, transaction, shortcode, authorize.net, credit cards, forms, payments, downloads, page, pages, post, posts, ssl, pci, cloud, service, memberpress, membership, content, protection, affiliate program, affiliate royale, affiliate, affiliates
+Tags: charge, charity, donation, donations, form, money, pay, payment, paypal, stripe, transaction, shortcode, authorize.net, credit cards, forms, payments, downloads, page, pages, post, posts, ssl, pci, cloud, service, memberpress, membership, content, protection, affiliate program, affiliate royale, affiliate, affiliates, amazon, s3, aws, amazon s3, amazon aws, address, shipping, product, products, aweber, mailchimp 
 Requires at least: 3.5.1
 Tested up to: 3.5.1
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 
 A cloud-backed plugin that lets you securely accept Credit Card payments on your site using Stripe without needing to install an SSL certificate.
 
@@ -12,7 +12,7 @@ A cloud-backed plugin that lets you securely accept Credit Card payments on your
 
 [Super Stripe](http://superstripeapp.com "Super Stripe Credit Card Processing for WordPress") is perfect for people who want to process credit cards but don't want to go through the hassle of getting a dedicated IP address or installing an SSL certificate.
 
-Super Stripe is great for selling digital goods, running promotions or accepting payments for services.
+Super Stripe is great for selling and protecting digital goods, running promotions or accepting payments for products and services.
 
 You can get more information about Super Stripe [here](http://superstripeapp.com "Super Stripe Credit Card Processing for WordPress").
 
@@ -24,6 +24,8 @@ You can get more information about Super Stripe [here](http://superstripeapp.com
 4. Send payment notices to as many addresses as you want
 5. Send a customizable email receipt to your users
 6. Fully PCI compliant
+7. Protect digital downloads hosted on Amazon S3
+8. Add customers to your AWeber or Mailchimp mailing list
 
 = Upgrade to MemberPress =
 
@@ -49,6 +51,10 @@ Super Stripe is ultra-simple to get setup ... it doesn't require your site to be
 After your user fills out and Submits the Buy Now form they will be redirected to our secure servers to checkout. Once the checkout is complete (or the user cancels), the user will be redirected back to your site to a customizable thank you page.
 
 Super Stripe sends sale notifications to any number of email address you want (specified when creating the form) and sends a very customizable email receipt to the customer.
+
+You can embed protected links to files into your customer sale notifications and on the thank you page you setup for your super stripe forms.
+
+You can integrate your payment forms with Mailchimp and/or AWeber to add customers to your mailing lists.
 
 = Pricing =
 
@@ -92,6 +98,12 @@ For more information [Read the Docs](http://superstripeapp.com/docs "Read the Do
 
 == Changelog ==
 
+= 1.1.3 =
+* Added Amazon S3 integration
+* Added AWeber integration
+* Added MailChimp integration
+* Added optional shipping info (Name & Address) to the payment form
+
 = 1.1.2 =
 * Added a video tutorial on how to add a super stripe buy now form to your website
 
@@ -103,6 +115,9 @@ For more information [Read the Docs](http://superstripeapp.com/docs "Read the Do
 * Added tinymce shortcode generator popup
 
 == Upgrade Notice ==
+
+= 1.1.3 =
+* Users wanting to take advantage of the new features should upgrade
 
 = 1.1.2 =
 * Only necessary to upgrade if you have questions on how to setup the buy now form shortcode
