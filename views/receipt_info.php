@@ -24,4 +24,5 @@
     <td><b><?php _e('Email:'); ?></b></td>
     <td>{$txn_email}</td>
   </tr>
+  {$txn_shipping_info} 
 </table>

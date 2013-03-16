@@ -213,10 +213,20 @@ class Supstr {
     }
   }
 
-  public function receipt_info() {
+  public function receipt_info($json) {
     ob_start();
     require( SUPSTR_VIEWS_PATH . "/receipt_info.php" );
     return ob_get_clean();
+  }
+
+  public function shipping_info($json) {
+    if($json->show_name=='true' or $json->show_address=='true') {
+      ob_start();
+      require( SUPSTR_VIEWS_PATH . "/shipping_info.php" );
+      return ob_get_clean();
+    }
+
+    return '';
   }
 
   public function default_message() {
@@ -523,11 +533,13 @@ class Supstr {
     $headers = "From: \"{$blogname}\" <{$main_email}>\r\n" .
                "Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n";
 
+    $shipping_info = $this->shipping_info($json);
+
     if( isset( $json->message ) ) {
       $json_message = base64_decode($json->message);
 
       $name_a = explode(' ', $json->response->charge->card->name);
-      $receipt_info = $this->receipt_info();
+      $receipt_info = $this->receipt_info($json);
       $json_message = preg_replace('/\{\$txn_receipt\}/',$receipt_info,$json_message);
       
       $replacements = array( 'first_name' => $name_a[0],
@@ -536,6 +548,7 @@ class Supstr {
                              'txn_price' => $this->format_currency((float)$json->price),
                              'txn_desc' => $json->description,
                              'txn_email' => $json->email,
+                             'txn_shipping_info' => $shipping_info,
                              'txn_buyer_name' => $json->response->charge->card->name,
                              'txn_company' => $json->company );
 

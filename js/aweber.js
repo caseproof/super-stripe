@@ -9,9 +9,13 @@
                    email: $(form).find('.supstr_email .supstr_field input').val()
                  };
       var name = '';
-      if( $('.supstr_first_name .supstr_field input').val() != '' ) {
+      if( $('.supstr_first_name .supstr_field input').val() != undefined &&
+          $('.supstr_first_name .supstr_field input').val() != null &&
+          $('.supstr_first_name .supstr_field input').val() != '' ) {
         name = $('.supstr_first_name .supstr_field input').val();
-        if( $('.supstr_last_name .supstr_field input').val() != '' ) {
+        if( $('.supstr_last_name .supstr_field input').val() != undefined &&
+            $('.supstr_last_name .supstr_field input').val() != null &&
+            $('.supstr_last_name .supstr_field input').val() != '' ) {
           name = name + ' ' + $('.supstr_last_name .supstr_field input').val();
         }
         args['name'] = name;

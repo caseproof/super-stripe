@@ -25,4 +25,9 @@
     <td><b><?php _e('Payee:'); ?></b></td>
     <td><?php echo $json->company; ?></td>
   </tr>
+  <?php
+    if($json->show_name=='true' or $json->show_address=='true'):
+      echo $shipping_info;
+    endif;
+  ?>
 </table>
