@@ -17,6 +17,7 @@
   #supstr-form-dialog input { display: block; float: right; width: 280px; padding: 3px 5px; }
   #supstr-form-dialog #insert { display: block; line-height: 24px; text-align: center; margin: 10px 0 0 0; width: 100%; float: right; text-decoration: none; }
   #supstr-form-dialog textarea { display: block; float: right; width: 280px; height: 200px; padding: 3px 5px; }
+  #supstr-form-dialog #advanced, #aweber, #mailchimp { display: none; }
 </style>
 
 <script type="text/javascript">
@@ -92,6 +93,32 @@
     }
   };
   tinyMCEPopup.onInit.add(ButtonDialog.init, ButtonDialog);
+
+  (function($) {
+    $(document).ready(function() {
+      $('#toggle_advanced').click(function() {
+        $('#advanced').slideToggle();
+        return false;
+      });
+      $('#toggle_aweber').change(function() {
+        if($(this).is(':checked')) {
+          $('#aweber').slideDown();
+        }
+        else {
+          $('#aweber').slideUp();
+        }
+      });
+      $('#toggle_mailchimp').click(function() {
+        if($(this).is(':checked')) {
+          $('#mailchimp').slideDown();
+        }
+        else {
+          $('#mailchimp').slideUp();
+        }
+      });
+    });
+  })(jQuery);
+
 </script>
 
 </head>
@@ -130,6 +157,15 @@
         </select>
       </div>
       <div>
+        <label for="shipping_info"><?php _e('Shipping Info', 'super-stripe'); ?></label>
+        <select name='shipping_info' id='shipping_info'>
+          <option value="none"><?php _e('None', 'super-stripe'); ?></option>
+          <option value="name"><?php _e('Name Only', 'super-stripe'); ?></option>
+          <option value="address"><?php _e('Address Only', 'super-stripe'); ?></option>
+          <option value="name_and_address"><?php _e('Name &amp; Address', 'super-stripe'); ?></option>
+        </select>
+      </div>
+      <div>
         <label for="sale_notice_emails"><?php _e('Admin sale notice emails', 'super-stripe'); ?></label>
         <input type="text" name="sale_notice_emails" value="<?php echo get_option('admin_email'); ?>" id="sale_notice_emails" />
       </div>
@@ -141,9 +177,38 @@
         <label for="currency"><?php _e('Currency code', 'super-stripe'); ?></label>
         <input type="text" name="currency" value="USD" id="currency" />
       </div>
-      <div>
-        <label for="currency"><?php _e('Custom Customer Email', 'super-stripe'); ?></label>
-        <textarea name="email" id="email"></textarea>
+      <div><a href="#" id="toggle_advanced"><?php _e('Show Advanced Options'); ?></a></div>
+      <div id="advanced">
+        <div><label for="toggle_aweber"><?php _e('AWeber Integration'); ?></label><input type="checkbox" id="toggle_aweber" /></div>
+        <div id="aweber">
+          <div>
+            <label for="aweber_list"><?php _e('AWeber List', 'super-stripe'); ?></label>
+            <input type="text" name="aweber_list" value="" id="aweber_list" />
+          </div>
+          <div>
+            <label for="aweber_message"><?php _e('AWeber Message', 'super-stripe'); ?></label>
+            <input type="text" name="aweber_message" value="<?php _e('Please send me more information about this product.'); ?>" id="aweber_message" />
+          </div>
+        </div>
+        <div><label for="toggle_mailchimp"><?php _e('MailChimp Integration'); ?></label><input type="checkbox" id="toggle_mailchimp" /></div>
+        <div id="mailchimp">
+          <div>
+            <label for="mailchimp_list_id"><?php _e('MailChimp List Id', 'super-stripe'); ?></label>
+            <input type="text" name="mailchimp_list_id" value="" id="mailchimp_list_id" />
+          </div>
+          <div>
+            <label for="mailchimp_apikey"><?php _e('MailChimp API Key', 'super-stripe'); ?></label>
+            <input type="text" name="mailchimp_apikey" value="" id="mailchimp_apikey" />
+          </div>
+          <div>
+            <label for="mailchimp_message"><?php _e('Mailchimp Message', 'super-stripe'); ?></label>
+            <input type="text" name="mailchimp_message" value="<?php _e('Please send me more information about this product.'); ?>" id="mailchimp_message" />
+          </div>
+        </div>
+        <div>
+          <label for="currency"><?php _e('Custom Customer Email', 'super-stripe'); ?></label>
+          <textarea name="email" id="email"></textarea>
+        </div>
       </div>
       <div>
         <a href="javascript:ButtonDialog.insert(ButtonDialog.local_ed)" id="insert"><?php _e('Insert', 'super-stripe'); ?></a>
