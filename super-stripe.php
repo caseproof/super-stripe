@@ -183,7 +183,7 @@ class Supstr {
                                     'mailchimp' => 'false',
                                     'mailchimp_apikey' => '',
                                     'mailchimp_list_id' => '',
-                                    'mailchimp_double_optin' => 'false',
+                                    'mailchimp_double_optin' => 'true',
                                     'mailchimp_message' => __('Please send me more information about this product.'),
                                     'currency' => 'USD' ), $atts );
 
