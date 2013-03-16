@@ -33,6 +33,8 @@ require_once( SUPSTR_LIB_PATH . '/SupstrMailchimpController.php');
 require_once( SUPSTR_LIB_PATH . '/SupstrTransactionsTable.php' );
 require_once( SUPSTR_LIB_PATH . '/SupstrUtils.php' );
 
+SupstrMailchimpController::load_hooks();
+
 class Supstr {
   public function __construct() {
     add_action('admin_menu', array($this, 'admin_menu'));
@@ -437,6 +439,8 @@ class Supstr {
       $args->country = $_REQUEST['supstr_country'];
     }
 
+    do_action('supstr-process-signup', $args);
+
     $url = SUPSTR_ENDPOINT . '/checkout/setup';
 
     $post_args = array( 'method' => 'POST',
@@ -456,8 +460,6 @@ class Supstr {
     $json = json_decode($resp['body']); 
     $token = $json->token;
     $url = SUPSTR_ENDPOINT . "/checkout/{$token}";
-
-    do_action('supstr-process-signup', $args);
 
     wp_redirect( $url );
   }
