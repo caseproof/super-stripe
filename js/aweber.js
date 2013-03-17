@@ -47,7 +47,7 @@
       }
     });
 
-    $('.supstr-payment-form input[type=submit]').click( function(e) {
+    $('.supstr-payment-form input[type=submit],.supstr-payment-form input[type=image]').click( function(e) {
       e.preventDefault();
       // Yup, that's right ... 3 levels of nesting bro
       supstr_submit_form( $(this).parent().parent().parent() ); 

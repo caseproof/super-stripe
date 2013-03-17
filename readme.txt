@@ -1,7 +1,7 @@
 === Super Stripe ===
 Contributors: supercleanse
 Donate link: http://superstripeapp.com
-Tags: charge, charity, donation, donations, form, money, pay, payment, paypal, stripe, transaction, shortcode, authorize.net, credit cards, forms, payments, downloads, page, pages, post, posts, ssl, pci, cloud, service, memberpress, membership, content, protection, affiliate program, affiliate royale, affiliate, affiliates, amazon, s3, aws, amazon s3, amazon aws, address, shipping, product, products, aweber, mailchimp 
+Tags: charge, payment, stripe, Post, posts, page, admin, plugin, memberpress, affiliate royale, aweber, mailchimp, amazon, downloads, ssl, pci
 Requires at least: 3.5.1
 Tested up to: 3.5.1
 Stable tag: 1.1.3
