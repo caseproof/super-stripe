@@ -3,7 +3,7 @@
     var supstr_get_post_args = function(form) {
       var listname = $(form).find('.supstr_aweber_optin').attr('data-list');
       var args = { listname: listname,
-                   meta_adtracking: 'super-stripe',
+                   meta_adtracking: 'buy-now-for-stripe',
                    meta_message: 1,
                    meta_forward_vars: 1,
                    email: $(form).find('.supstr_email .supstr_field input').val()

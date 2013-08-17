@@ -1,9 +1,8 @@
 (function() {
-  tinymce.create('tinymce.plugins.superstripe', {
+  tinymce.create('tinymce.plugins.buynowforstripe', {
     init : function(ed, url) {
-http://cpwafp.caseproof.com/wp-content/plugins/super-stripe/js
-      // Super Stripe Form Shortcode
-      ed.addCommand('superstripe_form', function() {
+      // Buy Now for Stripe Form Shortcode
+      ed.addCommand('buynowforstripe_form', function() {
         ed.windowManager.open({
           file : ajaxurl + '?action=supstr_shortcode_form', // file that contains HTML for our modal window
           width : 500 + parseInt(ed.getLang('button.delta_width', 0)), // size of our window
@@ -13,12 +12,12 @@ http://cpwafp.caseproof.com/wp-content/plugins/super-stripe/js
           plugin_url : url
         });
       });
-      ed.addButton('superstripe_form', {title : 'Insert Super Stripe Form', cmd : 'superstripe_form', image: url + '/../images/tinymce_form_popup.png'});
+      ed.addButton('buynowforstripe_form', {title : 'Insert Buy Now for Stripe Form', cmd : 'buynowforstripe_form', image: url + '/../images/tinymce_form_popup.png'});
     },
 
     getInfo : function() {
       return {
-        longname : 'SuperStripe',
+        longname : 'BuyNowForStripe',
         author : 'Caseproof, LLC',
         authorurl : 'http://www.caseproof.com',
         infourl : 'http://www.caseproof.com',
@@ -30,7 +29,7 @@ http://cpwafp.caseproof.com/wp-content/plugins/super-stripe/js
   // Register plugin
   // first parameter is the button ID and must match ID elsewhere
   // second parameter must match the first parameter of the tinymce.create() function above
-  tinymce.PluginManager.add('SuperStripe', tinymce.plugins.superstripe);
+  tinymce.PluginManager.add('BuyNowForStripe', tinymce.plugins.buynowforstripe);
 
 })();
 

@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Super Stripe
-Plugin URI: http://www.superstripeapp.com/
+Plugin Name: Buy Now for Stripe
+Plugin URI: http://buynowforstripe.com/
 Description: The plugin that makes it easy to accept stripe payments on your website
-Version: 1.1.3
+Version: 1.1.4
 Author: Caseproof, LLC
 Author URI: http://caseproof.com/
 Text Domain: super-stripe
@@ -45,6 +45,13 @@ class Supstr {
     add_action('wp_enqueue_scripts', array($this, 'enqueue_front_scripts'));
     add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
     add_action('save_post', array($this, 'compile_shortcode'));
+
+    add_shortcode('buy-now-form', array($this, 'stripe_form_shortcode'));
+    add_shortcode('buy-now-thank-you', array($this, 'stripe_thank_you_shortcode'));
+    add_shortcode('buy-now-aws-url', array($this, 'aws_url_shortcode'));
+    add_shortcode('buy-now-aws-link', array($this, 'aws_link_shortcode'));
+
+    // These shortcodes are deprecated ... but here for backwards compatibility
     add_shortcode('super-stripe-form', array($this, 'stripe_form_shortcode'));
     add_shortcode('super-stripe-thank-you', array($this, 'stripe_thank_you_shortcode'));
     add_shortcode('super-stripe-aws-url', array($this, 'aws_url_shortcode'));
@@ -75,7 +82,9 @@ class Supstr {
   public function enqueue_front_scripts() {
     global $post;
     
-    if(isset($post) && $post instanceof WP_Post && preg_match('#\[super-stripe-form#', $post->post_content)) {
+    if( isset($post) && $post instanceof WP_Post &&
+        ( preg_match('#\[super-stripe-form#', $post->post_content) or
+          preg_match('#\[buy-now-form#', $post->post_content) ) ) {
       wp_enqueue_script('supstr-validate-js', SUPSTR_JS_URL.'/jquery.validate.js', array('jquery'));
       wp_enqueue_script('supstr-shortcode-js', SUPSTR_JS_URL.'/shortcode.js', array('jquery'));
       wp_enqueue_script('supstr-aweber-js', SUPSTR_JS_URL.'/aweber.js', array('jquery'));
@@ -100,16 +109,16 @@ class Supstr {
   }
   
   public function enqueue_admin_scripts($hook) {
-    if(strstr($hook, 'super-stripe-txns') !== false) {
+    if(strstr($hook, 'buy-now-txns') !== false) {
       wp_enqueue_script('supstr-list-table-controls-js', SUPSTR_JS_URL.'/table_controls.js', array('jquery'));
       wp_enqueue_style('supstr-list-table-css', SUPSTR_CSS_URL.'/list-table.css');
     }
   }
   
   public function admin_menu() {
-    add_menu_page(__('Super Stripe', 'super-stripe'), __('Super Stripe', 'super-stripe'), 'administrator', 'super-stripe-txns', array($this, 'txns_page'));
-    add_submenu_page('super-stripe-txns', __('Transactions', 'super-stripe'), __('Transactions', 'super-stripe'), 'administrator', 'super-stripe-txns', array($this, 'txns_page'));
-    add_submenu_page('super-stripe-txns', __('Options', 'super-stripe'), __('Options', 'super-stripe'), 'administrator', 'super-stripe-options', array($this, 'settings_page'));
+    add_menu_page(__('Buy Now', 'super-stripe'), __('Buy Now', 'super-stripe'), 'administrator', 'buy-now-txns', array($this, 'txns_page'));
+    add_submenu_page('buy-now-txns', __('Transactions', 'super-stripe'), __('Transactions', 'super-stripe'), 'administrator', 'buy-now-txns', array($this, 'txns_page'));
+    add_submenu_page('buy-now-txns', __('Options', 'super-stripe'), __('Options', 'super-stripe'), 'administrator', 'buy-now-options', array($this, 'settings_page'));
   }
   
   public function txns_page() {
@@ -126,18 +135,18 @@ class Supstr {
     if( strtolower($_SERVER['REQUEST_METHOD']) == 'post' ) {
       if( wp_verify_nonce($_POST['_supstr_nonce'],'super-stripe') ) {
         if( !empty($_POST['supstr_license_key']) and !SupstrUpdateController::is_connected($_POST['supstr_license_key']) ) {
-          $errors[] = sprintf(__('API Key must be valid and connected to your Super Stripe account. %sRead the Instructions%s to see how to do this.'), '<a href="http://superstripeapp.com/docs">', '</a>');
+          $errors[] = sprintf(__('API Key must be valid and connected to your <em>Buy Now for Stripe</em> account. %sRead the Instructions%s to see how to do this.', 'super-stripe'), '<a href="http://buynowforstripe.com/docs">', '</a>');
         }
         else {
           update_option('supstr_license_key', $_POST['supstr_license_key']);
           update_option('supstr_aws_access_key', $_POST['supstr_aws_access_key']);
           update_option('supstr_aws_secret_key', $_POST['supstr_aws_secret_key']);
           update_option('supstr_connected', SupstrUpdateController::is_connected($_POST['supstr_license_key']));
-          $message = __('Super Stripe Options Updated Successfully');
+          $message = __('Buy Now for Stripe Options Updated Successfully', 'super-stripe');
         }
       }
       else
-        $errors[] = __('You creepin bro');
+        $errors[] = __('You creepin bro', 'super-stripe');
     }
     
     $this->display_form($message,$errors);
@@ -171,25 +180,26 @@ class Supstr {
       preg_match_all("/$pattern/s", $post->post_content, $m);
 
       foreach($m[3] as $i => $atts) {
-        // only record the super stripe form shortcodes
-        if( $m[2][$i] != 'super-stripe-form' )
+        // only record the buy now stripe form shortcodes
+        if( $m[2][$i] != 'super-stripe-form' and
+            $m[2][$i] != 'buy-now-form' )
           continue;
 
 	$atts = shortcode_parse_atts( $atts );
-        $args = array_merge( array( 'button' => __('Buy Now'),
+        $args = array_merge( array( 'button' => __('Buy Now', 'super-stripe'),
                                     'show_name' => 'false',
                                     'show_address' => 'false',
                                     'aweber' => 'false',
-                                    'aweber_message' => __('Please send me more information about this product.'),
+                                    'aweber_message' => __('Please send me more information about this product.', 'super-stripe'),
                                     'aweber_list' => '',
                                     'mailchimp' => 'false',
                                     'mailchimp_apikey' => '',
                                     'mailchimp_list_id' => '',
                                     'mailchimp_double_optin' => 'true',
-                                    'mailchimp_message' => __('Please send me more information about this product.'),
+                                    'mailchimp_message' => __('Please send me more information about this product.', 'super-stripe'),
                                     'currency' => 'USD' ), $atts );
 
-        // No recurring stuff works in Super Stripe ... gotta go with MemberPress for that action
+        // No recurring stuff works in Buy Now for Stripe ... gotta go with MemberPress for that action
         $args['period'] = 1;
         $args['period_type'] = 'lifetime';
         $args['trial'] = false;
@@ -348,7 +358,7 @@ class Supstr {
 
     $s3_url = $this->aws_url_shortcode( $atts, $content );
 
-    $label = isset($atts['label']) ? $atts['label'] : __('Download');
+    $label = isset($atts['label']) ? $atts['label'] : __('Download', 'super-stripe');
 
     return "<a href=\"{$s3_url}\">{$label}</a>";
   }
@@ -357,7 +367,7 @@ class Supstr {
     global $wpdb;
 
     if( isset($_REQUEST['status']) and $_REQUEST['status']=='error' ) {
-      return sprintf(__('There was an error processing your payment%s'), isset($_REQUEST['error']) ? ": {$_REQUEST['error']}" : '');
+      return sprintf(__('There was an error processing your payment%s', 'super-stripe'), isset($_REQUEST['error']) ? ": {$_REQUEST['error']}" : '');
     }
 
     if( !isset($_REQUEST['invoice']) or !isset($_REQUEST['token']) or
@@ -403,7 +413,7 @@ class Supstr {
   
   public function process_checkout() {
     if(!isset($_REQUEST['_wpnonce']) or
-       !wp_verify_nonce($_REQUEST['_wpnonce'],'Super Stripe Payment Form')) {
+       !wp_verify_nonce($_REQUEST['_wpnonce'],'Buy Now for Stripe Payment Form')) {
       die();
     }
 
@@ -453,7 +463,7 @@ class Supstr {
     $resp = wp_remote_post( $url, $post_args );
 
     if( is_wp_error( $resp ) ) {
-      _e("Something went wrong: ") . $resp->get_error_message();
+      _e("Something went wrong: ", 'super-stripe') . $resp->get_error_message();
       return;
     }
 
@@ -562,6 +572,7 @@ class Supstr {
                                     $json_message );
 
       $customer_body = preg_replace('~\{\$(super-stripe-aws-(url|link)[^\}]*)\}~', '[$1]', $customer_body);
+      $customer_body = preg_replace('~\{\$(buy-now-aws-(url|link)[^\}]*)\}~', '[$1]', $customer_body);
 
       // Artificially set the invoice parameter
       $_REQUEST['invoice'] = $json->response->charge->id;
@@ -571,7 +582,7 @@ class Supstr {
       update_post_meta( $post_id, '_supstr_txn_replacements', $replacements );
       update_post_meta( $post_id, '_supstr_txn_message', $customer_body );
 
-      wp_mail( $json->email, sprintf(__("** Receipt From %s"), $json->company), $customer_body, $headers );
+      wp_mail( $json->email, sprintf(__("** Receipt From %s", 'super-stripe'), $json->company), $customer_body, $headers );
     }
 
     if( isset( $json->sale_notice_emails ) ) {
@@ -582,7 +593,7 @@ class Supstr {
       $admin_body = ob_get_clean();
 
       foreach( $admin_addrs as $addr )
-        wp_mail( $addr, sprintf(__("** New Payment on %s"), get_option('blogname')), $admin_body, $headers );
+        wp_mail( $addr, sprintf(__("** New Payment on %s", 'super-stripe'), get_option('blogname')), $admin_body, $headers );
     }
 
     $uri = base64_decode($_REQUEST['url']);
@@ -621,13 +632,13 @@ class Supstr {
 
   // registers the buttons for use
   public function register_buttons($buttons) {
-    array_push($buttons, "superstripe_form");
+    array_push($buttons, "buynowforstripe_form");
     return $buttons;
   }
 
   // add the button to the tinyMCE bar
   public function add_tinymce_plugin($plugin_array) {
-    $plugin_array['SuperStripe'] = SUPSTR_JS_URL . '/tinymce_form_popup.js';
+    $plugin_array['BuyNowForStripe'] = SUPSTR_JS_URL . '/tinymce_form_popup.js';
     return $plugin_array;
   }
 
@@ -655,10 +666,10 @@ class Supstr {
     $secret_key = get_option('supstr_aws_secret_key');
 
     if(empty($access_key) or empty($secret_key))
-      die(__('AWS not setup ...'));
+      die(__('AWS not setup ...', 'super-stripe'));
 
     if(!isset($_REQUEST['i']) or !isset($_REQUEST['l']))
-      die(__('URL Unavailable ...'));
+      die(__('URL Unavailable ...', 'super-stripe'));
     else {
       $txn = SupstrUtils::get_txn_by_num($_REQUEST['i']);
       $link_key = $_REQUEST['l'];
@@ -670,10 +681,10 @@ class Supstr {
         if( empty($links[$link_key]) or
             empty($links[$link_key]['bucket']) or
             empty($links[$link_key]['path']) )
-        { die(__('AWS Link not found')); }
+        { die(__('AWS Link not found', 'super-stripe')); }
 
         if( is_numeric( $downs[$link_key] ) and ( $downs[$link_key] >= $links[$link_key]['maxdownloads'] ) )
-          die(__('Unavailable ... Your maximum number of downloads has been reached'));
+          die(__('Unavailable ... Your maximum number of downloads has been reached', 'super-stripe'));
 
         if( is_numeric($links[$link_key]['maxdownloads']) and $links[$link_key]['maxdownloads'] > 0 ) {
           if( empty($downs) )
@@ -697,7 +708,7 @@ class Supstr {
         die();
       }
       else
-        die(__('Invoice not found ... Access to URL is prohibited ...'));
+        die(__('Invoice not found ... Access to URL is prohibited ...', 'super-stripe'));
     }
   }
 

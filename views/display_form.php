@@ -18,7 +18,7 @@ jQuery(document).ready(function() {
 });
 </script>
 <div class="wrap">
-  <h2><?php _e('Super Stripe Options'); ?></h2>
+  <h2><?php _e('<em>Buy Now for Stripe</em> Options'); ?></h2>
   <br/>
   <?php require(SUPSTR_PATH.'/views/errors.php'); ?>
   <form method="post" action="">
@@ -47,7 +47,7 @@ jQuery(document).ready(function() {
       <?php if( $connected ): ?>
         <h3><?php _e('This license key is connected to Stripe and active. Happy credit card processing!'); ?></h3>
       <?php else: ?>
-        <h3><?php printf(__('This is not connected to Stripe. Please %1$slogin%2$s or %3$sregister for a free account%2$s on superstripeapp.com to connect this key to your Stripe credit card processing account.'), '<a href="http://superstripeapp.com/login">', '</a>', '<a href="http://superstripeapp.com/register/super-stripe">'); ?></h3>
+        <h3><?php printf(__('This is not connected to Stripe. Please %1$slogin%2$s or %3$sregister for a free account%2$s on buynowforstripe.com to connect this key to your Stripe credit card processing account.'), '<a href="http://buynowforstripe.com/login">', '</a>', '<a href="http://buynowforstripe.com/register/super-stripe">'); ?></h3>
       <?php endif; ?>
     <?php endif; ?>
   </div>

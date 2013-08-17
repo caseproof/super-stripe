@@ -1,7 +1,7 @@
 <?php
 if(!defined('ABSPATH')) {die('You are not allowed to call this page directly.');}
 /*
-Integration of Basic MailChimp into Super Stripe
+Integration of Basic MailChimp into Buy Now for Stripe
 */
 class SupstrMailchimpController
 {

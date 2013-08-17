@@ -5,7 +5,7 @@
   <input type="hidden" name="action" value="process" />
   <input type="hidden" name="args" value="<?php echo $form_count; ?>" />
   <input type="hidden" name="pid" value="<?php echo $post->ID; ?>" />
-  <input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce('Super Stripe Payment Form'); ?>" />
+  <input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce('Buy Now for Stripe Payment Form'); ?>" />
   <div class="super-stripe-form">
     <?php if( isset($show_name) and $show_name ): ?>
       <div class="supstr_name">

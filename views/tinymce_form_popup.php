@@ -4,7 +4,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title><?php _e('Insert Super Stripe Payment Form Shortcode'); ?></title>
+<title><?php _e('Insert Buy Now for Stripe Payment Form Shortcode'); ?></title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
 <script language="javascript" type="text/javascript" src="<?php echo home_url( '/wp-includes/js/tinymce/tiny_mce_popup.js' ); ?>"></script>
 <style type="text/css" src="<?php echo '/wp-includes/js/tinymce/themes/advanced/skins/wp_theme/dialog.css'; ?>"></style>
@@ -78,7 +78,7 @@
       }
       else {
         // setup the output of our shortcode
-        var output = '[super-stripe-form ';
+        var output = '[buy-now-form ';
         output += 'terms="' + terms + '" ';
         output += 'description="' + description + '" ';
         output += 'price="' + price + '" ';
@@ -116,7 +116,7 @@
         output += ']';
 
         if( email != '' ) {
-          output += email + '[/super-stripe-form]';
+          output += email + '[/buy-now-form]';
         }
 
         tinyMCEPopup.execCommand('mceReplaceContent', false, output);
@@ -159,7 +159,7 @@
 <body>
   <div id="supstr-form-dialog">
     <div id="docs">
-      <a href="http://superstripeapp.com/docs/#shortcode"><?php _e('User Manual', 'super-stripe'); ?></a>
+      <a href="http://buynowforstripe.com/docs/#shortcode"><?php _e('User Manual', 'super-stripe'); ?></a>
     </div>
     <div id="errors"></div>
     <form action="/" method="get" accept-charset="utf-8">
