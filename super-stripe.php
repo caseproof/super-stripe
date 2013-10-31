@@ -3,7 +3,7 @@
 Plugin Name: Buy Now for Stripe
 Plugin URI: http://buynowforstripe.com/
 Description: The plugin that makes it easy to accept stripe payments on your website
-Version: 1.1.5b2
+Version: 1.1.5b3
 Author: Caseproof, LLC
 Author URI: http://caseproof.com/
 Text Domain: super-stripe
