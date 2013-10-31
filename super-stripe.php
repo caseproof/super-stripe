@@ -714,5 +714,7 @@ class Supstr {
 
 } //End class
 
-new Supstr();
+//Load the textdomain
+load_plugin_textdomain('super-stripe', false, dirname(plugin_basename(__FILE__)).'/i18n/');
 
+new Supstr();
