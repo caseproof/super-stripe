@@ -252,7 +252,7 @@ class Supstr {
     static $form_count;
     
     if(!is_singular())
-      $post_id = the_ID();
+      $post_id = get_the_ID();
     else
       $post_id = $post->ID;
     
