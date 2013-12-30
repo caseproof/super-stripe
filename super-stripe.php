@@ -250,7 +250,12 @@ class Supstr {
   public function stripe_form_shortcode($atts, $content = null) {
     global $post;
     static $form_count;
-
+    
+    if(!is_singular())
+      $post_id = the_ID();
+    else
+      $post_id = $post->ID;
+    
     if(!isset($form_count))
       $form_count=0;
     else
@@ -266,7 +271,7 @@ class Supstr {
         !isset($atts["cancel_url"]) )
     { return ''; }
 
-    $payment_forms = get_post_meta($post->ID,'_supstr_payment_forms',true);
+    $payment_forms = get_post_meta($post_id,'_supstr_payment_forms',true);
 
     if( !isset($payment_forms[$form_count]) )
       return '';
