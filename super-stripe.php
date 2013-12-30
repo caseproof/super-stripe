@@ -82,13 +82,14 @@ class Supstr {
   public function enqueue_front_scripts() {
     global $post;
     
-    if( isset($post) && $post instanceof WP_Post &&
-        ( preg_match('#\[super-stripe-form#', $post->post_content) or
-          preg_match('#\[buy-now-form#', $post->post_content) ) ) {
+    //Need to enqueue on all pages for now - until we can find better method of detecting this on archive-type pages
+    // if( isset($post) && $post instanceof WP_Post &&
+        // ( preg_match('#\[super-stripe-form#', $post->post_content) or
+          // preg_match('#\[buy-now-form#', $post->post_content) ) ) {
       wp_enqueue_script('supstr-validate-js', SUPSTR_JS_URL.'/jquery.validate.js', array('jquery'));
       wp_enqueue_script('supstr-shortcode-js', SUPSTR_JS_URL.'/shortcode.js', array('jquery'));
       wp_enqueue_script('supstr-aweber-js', SUPSTR_JS_URL.'/aweber.js', array('jquery'));
-    }
+    // }
   }
 
   public function connect_warning() {
@@ -256,7 +257,7 @@ class Supstr {
     else
       $post_id = $post->ID;
     
-    if(!isset($form_count))
+    if(!isset($form_count) || !is_singular()) //!is_singular() will only allow one form to be executed per post on archive type pages.
       $form_count=0;
     else
       $form_count++;
