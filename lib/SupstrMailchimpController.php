@@ -5,7 +5,7 @@ Integration of Basic MailChimp into Buy Now for Stripe
 */
 class SupstrMailchimpController
 {
-  public function load_hooks() {
+  public static function load_hooks() {
     add_action('supstr-process-signup', 'SupstrMailChimpController::process_signup', 10, 1);
   }
   
