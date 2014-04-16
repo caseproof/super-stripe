@@ -6,7 +6,7 @@
         ed.windowManager.open({
           file : ajaxurl + '?action=supstr_shortcode_form', // file that contains HTML for our modal window
           width : 500 + parseInt(ed.getLang('button.delta_width', 0)), // size of our window
-          height : 575 + parseInt(ed.getLang('button.delta_height', 0)), // size of our window
+          height : 625 + parseInt(ed.getLang('button.delta_height', 0)), // size of our window
           inline : 1
         }, {
           plugin_url : url
