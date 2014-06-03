@@ -1,14 +1,14 @@
-# Copyright (C) 2013 Buy Now for Stripe
+# Copyright (C) 2014 Buy Now for Stripe
 # This file is distributed under the same license as the Buy Now for Stripe package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Buy Now for Stripe 1.1.5b3\n"
+"Project-Id-Version: Buy Now for Stripe 1.1.5\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/super-stripe\n"
-"POT-Creation-Date: 2013-10-31 19:19:28+00:00\n"
+"POT-Creation-Date: 2014-06-03 23:11:33+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2013-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2014-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
@@ -48,7 +48,7 @@ msgstr ""
 msgid "Bye\n"
 msgstr ""
 
-#: super-stripe.php:61 super-stripe.php:120
+#: super-stripe.php:61 super-stripe.php:121
 msgid "Transactions"
 msgstr ""
 
@@ -88,70 +88,70 @@ msgstr ""
 msgid "Parent Transaction:"
 msgstr ""
 
-#: super-stripe.php:119 super-stripe.php:189 views/tinymce_form_popup.php:208
+#: super-stripe.php:120 super-stripe.php:190 views/tinymce_form_popup.php:208
 msgid "Buy Now"
 msgstr ""
 
-#: super-stripe.php:121
+#: super-stripe.php:122
 msgid "Options"
 msgstr ""
 
-#: super-stripe.php:138
+#: super-stripe.php:139
 msgid ""
 "API Key must be valid and connected to your <em>Buy Now for Stripe</em> "
 "account. %sRead the Instructions%s to see how to do this."
 msgstr ""
 
-#: super-stripe.php:145
+#: super-stripe.php:146
 msgid "Buy Now for Stripe Options Updated Successfully"
 msgstr ""
 
-#: super-stripe.php:149
+#: super-stripe.php:150
 msgid "You creepin bro"
 msgstr ""
 
-#: super-stripe.php:193 super-stripe.php:199 views/tinymce_form_popup.php:224
+#: super-stripe.php:194 super-stripe.php:200 views/tinymce_form_popup.php:224
 #: views/tinymce_form_popup.php:239
 msgid "Please send me more information about this product."
 msgstr ""
 
-#: super-stripe.php:361
+#: super-stripe.php:367
 msgid "Download"
 msgstr ""
 
-#: super-stripe.php:370
+#: super-stripe.php:376
 msgid "There was an error processing your payment%s"
 msgstr ""
 
-#: super-stripe.php:466
+#: super-stripe.php:472
 msgid "Something went wrong: "
 msgstr ""
 
-#: super-stripe.php:585
+#: super-stripe.php:591
 msgid "** Receipt From %s"
 msgstr ""
 
-#: super-stripe.php:596
+#: super-stripe.php:602
 msgid "** New Payment on %s"
 msgstr ""
 
-#: super-stripe.php:669
+#: super-stripe.php:672
 msgid "AWS not setup ..."
 msgstr ""
 
-#: super-stripe.php:672
+#: super-stripe.php:675
 msgid "URL Unavailable ..."
 msgstr ""
 
-#: super-stripe.php:684
+#: super-stripe.php:687
 msgid "AWS Link not found"
 msgstr ""
 
-#: super-stripe.php:687
+#: super-stripe.php:690
 msgid "Unavailable ... Your maximum number of downloads has been reached"
 msgstr ""
 
-#: super-stripe.php:711
+#: super-stripe.php:714
 msgid "Invoice not found ... Access to URL is prohibited ..."
 msgstr ""
 
