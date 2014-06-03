@@ -32,7 +32,7 @@ if(!empty($records))
           break;
         case 'col_price':
           ?>
-          <td <?php echo $attributes; ?>><?php echo Supstr::format_currency($rec->price); ?></td>
+          <td <?php echo $attributes; ?>><?php echo Supstr::format_currency($rec->price, true, $rec->currency); ?></td>
           <?php
           break;
         case 'col_txn_num':

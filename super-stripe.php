@@ -563,7 +563,7 @@ class Supstr {
       $replacements = array( 'first_name' => $name_a[0],
                              'txn_num' => $json->response->charge->id,
                              'txn_date' => date('Y-m-d H:i:s'),
-                             'txn_price' => $this->format_currency((float)$json->price),
+                             'txn_price' => $this->format_currency((float)$json->price, true, $json->currency),
                              'txn_desc' => $json->description,
                              'txn_email' => $json->email,
                              'txn_shipping_info' => $shipping_info,
@@ -621,13 +621,10 @@ class Supstr {
     exit;
   }
 
-  public function format_currency( $number, $show_symbol = true ) {
+  public function format_currency( $number, $show_symbol = true, $code = 'USD' ) {
     global $wp_locale;
 
-    // Goin out on a limb here but since Stripe is currently
-    // only available in USA & Canada I think the bulk of 
-    // people will be looking at this as their currency symbol
-    $symbol = '$';
+    $symbol = SupstrUtils::lookup_currency_symbol($code);
 
     $rstr = (string)number_format((float)$number, 2, $wp_locale->number_format['decimal_point'], '');
 

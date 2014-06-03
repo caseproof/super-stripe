@@ -97,6 +97,7 @@ class SupstrTransactionsTable extends WP_List_Table {
                   'price' => 'txn_price.meta_value',
                   'description' => 'txn_desc.meta_value',
                   'email' => 'txn_email.meta_value',
+                  'currency' => 'txn_currency.meta_value',
                   'buyer_name' => 'txn_buyer_name.meta_value'
                  );
     
@@ -107,6 +108,7 @@ class SupstrTransactionsTable extends WP_List_Table {
                     "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_price ON txn_price.post_id = txn.ID AND txn_price.meta_key = '_supstr_txn_price'",
                     "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_desc ON txn_desc.post_id = txn.ID AND txn_desc.meta_key = '_supstr_txn_desc'",
                     "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_email ON txn_email.post_id = txn.ID AND txn_email.meta_key = '_supstr_txn_email'",
+                    "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_currency ON txn_currency.post_id = txn.ID AND txn_currency.meta_key = '_supstr_txn_currency'",
                     "LEFT OUTER JOIN {$wpdb->postmeta} AS txn_buyer_name ON txn_buyer_name.post_id = txn.ID AND txn_buyer_name.meta_key = '_supstr_txn_buyer_name'"
                   );
     

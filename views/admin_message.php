@@ -7,7 +7,7 @@
   </tr>
   <tr>
     <td><b><?php _e('Price:'); ?></b></td>
-    <td><?php echo Supstr::format_currency($json->price); ?></td>
+    <td><?php echo Supstr::format_currency($json->price, true, $json->currency); ?></td>
   </tr>
   <tr>
     <td><b><?php _e('Description:'); ?></b></td>
