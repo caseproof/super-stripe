@@ -3,7 +3,7 @@ Contributors: supercleanse
 Donate link: http://buynowforstripe.com
 Tags: charge, payment, stripe, super stripe, Post, posts, page, admin, plugin, memberpress, affiliate royale, aweber, mailchimp, amazon, downloads, ssl, pci
 Requires at least: 3.8
-Tested up to: 3.9
+Tested up to: 3.9.1
 Stable tag: 1.1.5
 
 A cloud-backed plugin that lets you securely accept Credit Card payments on your site using Stripe without needing to install an SSL certificate.
@@ -104,7 +104,8 @@ For more information [Read the Docs](http://buynowforstripe.com/docs "Read the D
 
 == Changelog ==
 
-= 1.1.3 =
+= 1.1.5 =
+* Fixed currency symbol issue
 * Minor changes for WP 3.9
 
 = 1.1.4 =
