@@ -12,7 +12,7 @@ A cloud-backed plugin that lets you securely accept Credit Card payments on your
 
 We have released **Significant Upgrade** to Buy Now for Stripe called [Buy Now Plus](https://buynowplus.com "Buy Now Buttons Made Easy"). [Buy Now Plus](https://buynowplus.com "Buy Now Buttons Made Easy") will allow you to create Buy Now Buttons that can be used **anywhere** ... on your WordPress website ... or Facebook, Twitter, Email or anywhere else you can post a link.
 
-As such we have disabled new signups for Buy Now Plus ... but current users will be able to continue using their legacy Buy Now for Stripe buttons as long as they wish. We'll continue to provide updates to the plugin and service ... but we certainly recommend using Buy Now Plus if you want to take advantage of all the new features and future enhancements!
+As such we have disabled new signups for Buy Now for Stripe ... but current users will be able to continue using their legacy Buy Now for Stripe buttons as long as they wish. We'll continue to provide updates to the plugin and service ... but we certainly recommend using Buy Now Plus instead if you want to take advantage of all the new features and future enhancements!
 
 == Description ==
 
