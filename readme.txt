@@ -8,13 +8,21 @@ Stable tag: 1.1.5
 
 A cloud-backed plugin that lets you securely accept Credit Card payments on your site using Stripe without needing to install an SSL certificate.
 
-== IMPORTANT! ==
-
-We have released **Significant Upgrade** to Buy Now for Stripe called [Buy Now Plus](https://buynowplus.com "Buy Now Buttons Made Easy"). [Buy Now Plus](https://buynowplus.com "Buy Now Buttons Made Easy") will allow you to create Buy Now Buttons that can be used **anywhere** ... on your WordPress website ... or Facebook, Twitter, Email or anywhere else you can post a link.
-
-As such we have disabled new signups for Buy Now for Stripe ... but current users will be able to continue using their legacy Buy Now for Stripe buttons as long as they wish. We'll continue to provide updates to the plugin and service ... but we certainly recommend using Buy Now Plus instead if you want to take advantage of all the new features and future enhancements!
-
 == Description ==
+
+= IMPORTANT! =
+
+We've released **Significant Upgrade** to Buy Now for Stripe called [Buy Now Plus](https://buynowplus.com "Buy Now Buttons Made Easy").
+
+
+[Sign up at BuyNowPlus.com &raquo;](https://buynowplus.com "Buy Now Buttons Made Easy")
+
+
+[Buy Now Plus](https://buynowplus.com "Buy Now Buttons Made Easy") will allow you to create Buy Now Buttons that can be used **anywhere** ... on your WordPress website ... or Facebook, Twitter, Email or anywhere else you can post a link.
+
+As such we've disabled new signups for Buy Now for Stripe ... but current users will be able to continue using their legacy Buy Now for Stripe buttons as long as they wish. We'll continue to provide updates to the plugin and service ... but we certainly recommend using Buy Now Plus instead if you want to take advantage of all the new features and future enhancements!
+
+= Buy Now for Stripe (Legacy) =
 
 [Buy Now for Stripe](http://buynowforstripe.com "Buy Now for Stripe Credit Card Processing for WordPress") (formerly known as "Super Stripe") is perfect for people who want to process credit cards but don't want to go through the hassle of getting a dedicated IP address or installing an SSL certificate.
 
